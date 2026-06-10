@@ -21,6 +21,11 @@
 # misc
 .DS_Store
 *.pem
+Thumbs.db
+desktop.ini
+
+# turbopack
+.turbo/
 
 # debug
 npm-debug.log*
