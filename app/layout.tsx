@@ -32,7 +32,7 @@ export default function RootLayout({
         "font-sans"
       )}
     >
-      <body>
+      <body suppressHydrationWarning>
         <ThemeProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
