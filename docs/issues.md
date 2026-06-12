@@ -112,3 +112,67 @@ Full blog post management with draft/published lifecycle and rich text editing.
 - [x] "Unpublish" button calls `POST /:id/unpublish` — only shown on Published posts
 - [x] Delete with confirmation dialog (hard delete, no undo)
 - [x] `status` never edited directly — only changed via publish/unpublish actions
+
+---
+
+## Issue 8: Leads — Dashboard metrics and lead list
+
+**Title:** `feat: leads — dashboard metrics and lead list view`
+
+Surface lead generation data on the dashboard and provide a dedicated leads list. This is the primary commercial metric for selling the platform to Professionals.
+
+> **Blocked:** requires backend to model the Lead entity and expose it via the stats endpoint and a dedicated leads endpoint.
+
+**Tasks**
+- [ ] Add leads count and growth trend to dashboard stats cards
+- [ ] Add experience → PAI → lead conversion funnel card to dashboard
+- [ ] Build `/leads` list page: date, user (anonymized), experience type that generated the lead
+- [ ] Filter by date range and experience type
+
+---
+
+## Issue 9: Professionals — Verification queue and account management
+
+**Title:** `feat: professionals — verification queue, approve/reject, account management`
+
+Admin tools to onboard and manage Professional accounts (therapists and psychiatrists). Professionals must be manually verified before accessing leads.
+
+> **Blocked:** requires backend to model the Professional profile and verification states.
+
+**Tasks**
+- [ ] `/professionals` list page: all professionals with status badge (`pending`, `active`, `rejected`)
+- [ ] Verification queue tab: pending applications with submitted CRP/CRM number and specialty
+- [ ] Approve action: activates account
+- [ ] Reject action: requires reason note, notifies applicant
+- [ ] Deactivate / delete account with confirmation
+- [ ] Detail view: full submitted credentials, approval history, subscription status
+
+**Future (post-MVP)**
+- [ ] Automated CRP/CRM cross-check against CFP/CFM public registers
+- [ ] Document upload review (diploma, RQE certificate)
+- [ ] Specialty tag management for lead matching
+
+---
+
+## Issue 10: Establishments — Verification queue, account management, and reports
+
+**Title:** `feat: establishments — verification queue, account management, user reports`
+
+Admin tools to onboard and manage Establishment accounts (ceremony venues) and handle user reports submitted against them.
+
+> **Blocked:** requires backend to model the Establishment profile, verification states, and Report entity.
+
+**Tasks**
+- [ ] `/establishments` list page: all establishments with status badge (`pending`, `active`, `suspended`, `rejected`)
+- [ ] Verification queue tab: pending applications with CNPJ, responsible person, ritual types
+- [ ] Approve / reject with reason note
+- [ ] Suspend account (hidden from marketplace, account preserved)
+- [ ] Delete account permanently with confirmation
+- [ ] `/establishments/:id/reports` — list of user reports against that establishment: category, description, timestamp, reporter (anonymous)
+- [ ] Report actions: dismiss, warn (internal note), suspend establishment, delete establishment
+- [ ] Reports badge on establishment list row when unreviewed reports exist
+
+**Future (post-MVP)**
+- [ ] Automated CNPJ validation via Receita Federal API
+- [ ] Aggregated ratings and community reviews in admin panel
+- [ ] Event calendar and capacity management

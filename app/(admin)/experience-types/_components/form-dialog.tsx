@@ -171,12 +171,12 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
 
             <div className="space-y-1.5">
               <Label htmlFor="icon_color">Icon color</Label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <input
                   type="color"
                   value={iconColor}
                   onChange={(e) => setValue("icon_color", e.target.value)}
-                  className="h-9 w-10 cursor-pointer rounded-md border border-input p-1"
+                  className="h-9 w-10.5 cursor-pointer rounded-md border border-input p-1"
                 />
                 <Input
                   id="icon_color"

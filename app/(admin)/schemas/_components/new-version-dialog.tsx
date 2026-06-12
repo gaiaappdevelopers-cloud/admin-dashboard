@@ -3,9 +3,16 @@
 import { useState } from "react"
 import dynamic from "next/dynamic"
 import { useCreateSchema } from "@/hooks/use-schemas"
+import { useExperienceTypes } from "@/hooks/use-experience-types"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -51,7 +58,13 @@ export function NewVersionDialog({
   const [schemaKey, setSchemaKey] = useState(defaultSchemaKey)
   const [sectionsJson, setSectionsJson] = useState(DEFAULT_SECTIONS)
   const [jsonError, setJsonError] = useState<string | null>(null)
+
   const create = useCreateSchema()
+  const { data: experienceTypes } = useExperienceTypes()
+
+  const schemaKeyOptions = [
+    ...new Set((experienceTypes ?? []).map((et) => et.schema_key)),
+  ].sort()
 
   function validateJson(value: string): unknown[] | null {
     try {
@@ -75,8 +88,6 @@ export function NewVersionDialog({
 
     await create.mutateAsync({ schema_key: schemaKey.trim(), sections })
     onOpenChange(false)
-    setSchemaKey("")
-    setSectionsJson(DEFAULT_SECTIONS)
   }
 
   return (
@@ -88,14 +99,19 @@ export function NewVersionDialog({
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="schema_key">Schema key</Label>
-            <Input
-              id="schema_key"
-              placeholder="e.g. meditation-form"
-              value={schemaKey}
-              onChange={(e) => setSchemaKey(e.target.value)}
-              className="font-mono"
-            />
+            <Label>Schema key</Label>
+            <Select value={schemaKey} onValueChange={setSchemaKey}>
+              <SelectTrigger className="font-mono w-full">
+                <SelectValue placeholder="Select a schema key…" />
+              </SelectTrigger>
+              <SelectContent>
+                {schemaKeyOptions.map((key) => (
+                  <SelectItem key={key} value={key} className="font-mono">
+                    {key}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">

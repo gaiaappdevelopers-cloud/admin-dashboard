@@ -23,13 +23,13 @@ export function TopBar({ title }: TopBarProps) {
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className="flex h-14 items-center gap-3 border-b bg-background px-4">
+    <header className="flex h-14 items-center gap-1 border-b bg-background px-4">
       <SidebarTrigger className="-ml-1">
-        <PanelLeft className="h-4 w-4" />
+        <PanelLeft className="h-5 w-5" />
       </SidebarTrigger>
 
       <div className="flex-1">
-        <h1 className="font-heading text-sm font-semibold">{title}</h1>
+        <h1 className="font-heading text-base font-semibold">{title}</h1>
       </div>
 
       <Button
@@ -38,8 +38,8 @@ export function TopBar({ title }: TopBarProps) {
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         aria-label="Toggle theme"
       >
-        <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
       </Button>
 
       <DropdownMenu>

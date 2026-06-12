@@ -205,6 +205,7 @@ export default function SchemasPage() {
       </main>
 
       <NewVersionDialog
+        key={`${newDialogOpen}-${newDialogKey}`}
         open={newDialogOpen}
         onOpenChange={setNewDialogOpen}
         defaultSchemaKey={newDialogKey}
