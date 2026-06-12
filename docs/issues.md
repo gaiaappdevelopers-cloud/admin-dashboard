@@ -121,13 +121,15 @@ Full blog post management with draft/published lifecycle and rich text editing.
 
 Surface lead generation data on the dashboard and provide a dedicated leads list. This is the primary commercial metric for selling the platform to Professionals.
 
-> **Blocked:** requires backend to model the Lead entity and expose it via the stats endpoint and a dedicated leads endpoint.
+> **UI complete (mock data).** Blocked on backend: requires Lead entity, stats endpoint update, and dedicated leads endpoint.
 
 **Tasks**
-- [ ] Add leads count and growth trend to dashboard stats cards
-- [ ] Add experience → PAI → lead conversion funnel card to dashboard
-- [ ] Build `/leads` list page: date, user (anonymized), experience type that generated the lead
-- [ ] Filter by date range and experience type
+- [x] Add leads count to dashboard stats section
+- [x] Add experience → PAI → lead conversion funnel chart to dashboard (horizontal bar chart)
+- [x] Add lead status breakdown donut chart to dashboard
+- [x] Build `/leads` list page: date, experience type, PAI summary, status badge
+- [ ] Filter by date range and experience type (backend-dependent)
+- [ ] Connect to real API once backend models Lead entity
 
 ---
 
@@ -137,15 +139,16 @@ Surface lead generation data on the dashboard and provide a dedicated leads list
 
 Admin tools to onboard and manage Professional accounts (therapists and psychiatrists). Professionals must be manually verified before accessing leads.
 
-> **Blocked:** requires backend to model the Professional profile and verification states.
+> **UI complete (mock data).** Blocked on backend: requires Professional profile and verification states.
 
 **Tasks**
-- [ ] `/professionals` list page: all professionals with status badge (`pending`, `active`, `rejected`)
-- [ ] Verification queue tab: pending applications with submitted CRP/CRM number and specialty
-- [ ] Approve action: activates account
-- [ ] Reject action: requires reason note, notifies applicant
-- [ ] Deactivate / delete account with confirmation
+- [x] `/professionals` list page: all professionals with status badge (`pending`, `active`, `rejected`)
+- [x] Pending tab: applications with CRP/CRM number, specialty, external register link (CFP/CFM)
+- [x] Approve action: activates account (with register verification reminder)
+- [x] Reject action: requires reason note (shown as tooltip on badge)
+- [x] Delete account with confirmation
 - [ ] Detail view: full submitted credentials, approval history, subscription status
+- [ ] Connect to real API once backend models Professional entity
 
 **Future (post-MVP)**
 - [ ] Automated CRP/CRM cross-check against CFP/CFM public registers
@@ -160,17 +163,17 @@ Admin tools to onboard and manage Professional accounts (therapists and psychiat
 
 Admin tools to onboard and manage Establishment accounts (ceremony venues) and handle user reports submitted against them.
 
-> **Blocked:** requires backend to model the Establishment profile, verification states, and Report entity.
+> **UI complete (mock data).** Blocked on backend: requires Establishment profile, verification states, and Report entity.
 
 **Tasks**
-- [ ] `/establishments` list page: all establishments with status badge (`pending`, `active`, `suspended`, `rejected`)
-- [ ] Verification queue tab: pending applications with CNPJ, responsible person, ritual types
-- [ ] Approve / reject with reason note
-- [ ] Suspend account (hidden from marketplace, account preserved)
-- [ ] Delete account permanently with confirmation
-- [ ] `/establishments/:id/reports` — list of user reports against that establishment: category, description, timestamp, reporter (anonymous)
-- [ ] Report actions: dismiss, warn (internal note), suspend establishment, delete establishment
-- [ ] Reports badge on establishment list row when unreviewed reports exist
+- [x] `/establishments` list page: all establishments with status badge (`pending`, `active`, `suspended`, `rejected`)
+- [x] Approve / reject with reason note (rejection reason shown as tooltip on badge)
+- [x] Suspend action (hidden from marketplace, account preserved) and Reinstate
+- [x] Delete account permanently with confirmation
+- [x] `/establishments/:id/reports` — list of user reports: category, description, timestamp, reporter
+- [x] Report actions: dismiss, warn (internal note), suspend establishment, delete report
+- [x] Reports flag button on establishment list row when unreviewed reports exist
+- [ ] Connect to real API once backend models Establishment and Report entities
 
 **Future (post-MVP)**
 - [ ] Automated CNPJ validation via Receita Federal API

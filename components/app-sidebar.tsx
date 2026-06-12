@@ -8,6 +8,9 @@ import {
   BookOpen,
   Layers,
   Sparkles,
+  TrendingUp,
+  Stethoscope,
+  Building2,
 } from "lucide-react"
 
 import {
@@ -29,6 +32,12 @@ const contentNav = [
 const configNav = [
   { title: "Experience Types", href: "/experience-types", icon: Sparkles },
   { title: "Schemas", href: "/schemas", icon: Layers },
+]
+
+const platformNav = [
+  { title: "Leads", href: "/leads", icon: TrendingUp },
+  { title: "Professionals", href: "/professionals", icon: Stethoscope },
+  { title: "Establishments", href: "/establishments", icon: Building2 },
 ]
 
 export function AppSidebar() {
@@ -74,8 +83,8 @@ export function AppSidebar() {
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
                   <Link href={item.href}>
-                    <item.icon />
-                    <span>{item.title}</span>
+                    <item.icon className="text-[#8752AD]"/>
+                    <span className="text-sm">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -90,8 +99,24 @@ export function AppSidebar() {
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
                   <Link href={item.href}>
-                    <item.icon />
-                    <span>{item.title}</span>
+                   <item.icon className="text-[#8752AD]"/>
+                    <span className="text-sm">{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarMenu>
+            {platformNav.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
+                  <Link href={item.href}>
+                    <item.icon className="text-[#8752AD]"/>
+                    <span className="text-sm">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

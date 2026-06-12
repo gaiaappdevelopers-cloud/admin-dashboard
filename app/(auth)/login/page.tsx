@@ -51,7 +51,7 @@ export default function LoginPage() {
           >
             GAIA
           </h1>
-          <p className="text-sm text-muted-foreground">Admin Panel</p>
+          <p className="text-sm -mt-2 text-muted-foreground">Admin Panel</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -88,7 +88,7 @@ export default function LoginPage() {
             <p className="text-sm text-destructive">{serverError}</p>
           )}
 
-          <Button type="submit" className="w-full bg-black text-white rounded-none" disabled={isSubmitting}>
+          <Button type="submit" className="w-full bg-[#2C2C3A] text-white rounded-none" disabled={isSubmitting}>
             {isSubmitting ? "Signing in…" : "Sign in"}
           </Button>
         </form>
