@@ -51,6 +51,8 @@ interface FieldEditorProps {
   onMoveUp?: () => void
   onMoveDown?: () => void
   allowComplementary?: boolean
+  /** Only show key-format errors after the admin has attempted to save. */
+  showErrors?: boolean
 }
 
 export function FieldEditor({
@@ -60,6 +62,7 @@ export function FieldEditor({
   onMoveUp,
   onMoveDown,
   allowComplementary = true,
+  showErrors = false,
 }: FieldEditorProps) {
   const [open, setOpen] = useState(field.field_title.trim().length === 0)
   const { data: pages } = usePages()
@@ -157,13 +160,13 @@ export function FieldEditor({
                   onChange={(e) => patch({ field_key: e.target.value })}
                   className="font-mono text-xs"
                 />
-                {isValidKey(field.field_key) ? (
-                  <p className="text-[11px] text-muted-foreground">
-                    Mantenha estável entre versões — mudar isso desconecta respostas antigas.
-                  </p>
-                ) : (
+                {showErrors && !isValidKey(field.field_key) ? (
                   <p className="text-[11px] text-destructive">
                     Deve estar em snake_case (ex: principal_insight)
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">
+                    Mantenha estável entre versões — mudar isso desconecta respostas antigas.
                   </p>
                 )}
               </div>
@@ -392,7 +395,7 @@ export function FieldEditor({
                       }
                       className="font-mono text-xs"
                     />
-                    {field.link && !isValidKey(field.link.destination_key) && (
+                    {showErrors && field.link && !isValidKey(field.link.destination_key) && (
                       <p className="text-[11px] text-destructive">Deve estar em snake_case</p>
                     )}
                   </div>
@@ -412,7 +415,7 @@ export function FieldEditor({
                       placeholder="Chave da página"
                       className="font-mono text-xs"
                     />
-                    {field.link?.page_key && !isValidKey(field.link.page_key) && (
+                    {showErrors && field.link?.page_key && !isValidKey(field.link.page_key) && (
                       <p className="text-[11px] text-destructive">Deve estar em snake_case</p>
                     )}
                   </div>
@@ -484,6 +487,7 @@ export function FieldEditor({
                       onChange={(complementary_field) => patch({ complementary_field })}
                       onRemove={() => patch({ complementary_field: null })}
                       allowComplementary={false}
+                      showErrors={showErrors}
                     />
                   )}
                 </div>

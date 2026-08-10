@@ -8,16 +8,30 @@ export type DynamicFormFieldType =
   | "checkbox"
 
 export const FIELD_TYPE_OPTIONS: { value: DynamicFormFieldType; label: string }[] = [
-  { value: "text", label: "Text" },
-  { value: "formatted_text", label: "Formatted text (markdown)" },
-  { value: "date", label: "Date" },
-  { value: "selection", label: "Selection" },
-  { value: "dropdown", label: "Dropdown" },
-  { value: "boolean", label: "Yes / No" },
-  { value: "checkbox", label: "Checkbox" },
+  { value: "text", label: "Texto" },
+  { value: "formatted_text", label: "Texto formatado (markdown)" },
+  { value: "date", label: "Data" },
+  { value: "selection", label: "Seleção" },
+  { value: "dropdown", label: "Lista suspensa" },
+  { value: "boolean", label: "Sim / Não" },
+  { value: "checkbox", label: "Caixa de seleção" },
 ]
 
 export const OPTIONS_FIELD_TYPES: DynamicFormFieldType[] = ["selection", "dropdown", "checkbox"]
+
+/** Chave fixa do formulário de PAI (Plano de Ação de Integração) — só existe um. */
+export const PAI_PLAN_SCHEMA_KEY = "pai_plan"
+
+/**
+ * Chaves de ícone confirmadas pelo dev mobile para section_info_box.icon —
+ * o Flutter também aceita light_bulb/idea como aliases legados de lightbulb,
+ * mas não oferecemos esses aliases aqui (ver gaia-backend/docs/pending-questions.md).
+ */
+export const SECTION_INFO_BOX_ICON_OPTIONS = [
+  { value: "lightbulb", label: "Lâmpada" },
+  { value: "info", label: "Informação" },
+  { value: "sparkles", label: "Brilho" },
+] as const
 
 export type ComplementaryActivationMode = "always" | "never" | "truthy" | "equals_any"
 

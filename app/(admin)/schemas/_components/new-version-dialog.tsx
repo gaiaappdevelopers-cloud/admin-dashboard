@@ -29,6 +29,12 @@ interface NewVersionDialogProps {
   defaultSchemaKey?: string
   /** When set, the dialog edits this draft version in place instead of creating a new one. */
   editVersion?: { schemaKey: string; version: number }
+  /**
+   * When set, the schema_key field is hidden entirely and locked to this
+   * value — for single-purpose forms (like PAI) where there's nothing to
+   * pick.
+   */
+  fixedSchemaKey?: string
 }
 
 export function NewVersionDialog({
@@ -36,11 +42,14 @@ export function NewVersionDialog({
   onOpenChange,
   defaultSchemaKey = "",
   editVersion,
+  fixedSchemaKey,
 }: NewVersionDialogProps) {
   const isEditing = !!editVersion
   // The parent remounts this dialog (via `key`) each time it opens, so lazy
   // initial state is enough to reset the form — no reset-on-open effect needed.
-  const [schemaKey, setSchemaKey] = useState(isEditing ? editVersion.schemaKey : defaultSchemaKey)
+  const [schemaKey, setSchemaKey] = useState(
+    isEditing ? editVersion.schemaKey : (fixedSchemaKey ?? defaultSchemaKey)
+  )
   const [sections, setSections] = useState<DynamicFormSection[]>(
     isEditing ? [] : [createEmptySection()]
   )
@@ -96,13 +105,19 @@ export function NewVersionDialog({
     setSections(next)
   }
 
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false)
+
   const invalidKeys = collectInvalidKeys(sections)
   const schemaKeyValid = isValidKey(schemaKey.trim())
   const canSubmit =
     schemaKeyValid && sections.length > 0 && invalidKeys.length === 0
+  const showErrors = attemptedSubmit
 
   async function handleSubmit() {
-    if (!canSubmit) return
+    if (!canSubmit) {
+      setAttemptedSubmit(true)
+      return
+    }
 
     if (isEditing) {
       await update.mutateAsync({
@@ -126,48 +141,55 @@ export function NewVersionDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="space-y-1.5">
-            <LabelWithHint hint="Identifica este formulário no sistema. É usado pelo app mobile pra saber qual formulário carregar — por isso precisa bater com o schema_key de um Tipo de Experiência (ou com a chave de follow-up dele).">
-              Chave do formulário
-            </LabelWithHint>
-            <ComboboxInput
-              value={schemaKey}
-              onChange={setSchemaKey}
-              options={schemaKeyOptions}
-              placeholder="Escolha uma chave existente ou digite uma nova"
-              disabled={isEditing}
-              className="font-mono"
-            />
-            {schemaKeyValid ? (
-              <p className="text-xs text-muted-foreground">
-                Deve bater com o schema_key ou follow_up_schema_key de um Tipo de Experiência.
-              </p>
-            ) : (
-              <p className="text-xs text-destructive">
-                Deve estar em snake_case (ex: experience_protocol_follow_up)
-              </p>
-            )}
-          </div>
+          {!fixedSchemaKey && (
+            <div className="space-y-1.5">
+              <LabelWithHint hint="Identifica este formulário no sistema. É usado pelo app mobile pra saber qual formulário carregar — por isso precisa bater com o schema_key de um Tipo de Experiência (ou com a chave de follow-up dele).">
+                Chave do formulário
+              </LabelWithHint>
+              <ComboboxInput
+                value={schemaKey}
+                onChange={setSchemaKey}
+                options={schemaKeyOptions}
+                placeholder="Escolha uma chave existente ou digite uma nova"
+                disabled={isEditing}
+                className="font-mono"
+              />
+              {showErrors && !schemaKeyValid ? (
+                <p className="text-xs text-destructive">
+                  Deve estar em snake_case (ex: experience_protocol_follow_up)
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Deve bater com o schema_key ou follow_up_schema_key de um Tipo de Experiência.
+                </p>
+              )}
+            </div>
+          )}
 
           {isEditing && isLoadingVersion ? (
             <p className="py-8 text-center text-sm text-muted-foreground">Carregando…</p>
           ) : (
             <div className="space-y-2">
               {sections.map((section, index) => (
+                // Keyed by index, not section_key: section_key is
+                // auto-slugified from the title on every keystroke for new
+                // sections, which would remount the input (and drop focus)
+                // on every letter.
                 <SectionEditor
-                  key={section.section_key || index}
+                  key={index}
                   section={section}
                   onChange={(s) => updateSection(index, s)}
                   onRemove={() => removeSection(index)}
                   onMoveUp={index > 0 ? () => moveSection(index, -1) : undefined}
                   onMoveDown={index < sections.length - 1 ? () => moveSection(index, 1) : undefined}
+                  showErrors={showErrors}
                 />
               ))}
               <Button type="button" variant="outline" size="sm" onClick={addSection}>
                 <Plus className="mr-1.5 h-3.5 w-3.5" />
                 Adicionar seção
               </Button>
-              {invalidKeys.length > 0 && (
+              {showErrors && invalidKeys.length > 0 && (
                 <p className="text-xs text-destructive">
                   {invalidKeys.length === 1
                     ? "1 chave precisa"
@@ -184,7 +206,7 @@ export function NewVersionDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={isPending || !canSubmit}>
+          <Button onClick={handleSubmit} disabled={isPending}>
             {isPending ? "Salvando…" : isEditing ? "Salvar rascunho" : "Criar versão"}
           </Button>
         </DialogFooter>
