@@ -1,10 +1,27 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, Plus, Upload, Trash2, AlertCircle, CheckCircle2, Pencil } from "lucide-react"
+import {
+  ChevronDown,
+  Plus,
+  Upload,
+  Trash2,
+  AlertCircle,
+  CheckCircle2,
+  Pencil,
+  Moon,
+  Sparkles,
+  Brain,
+  Lightbulb,
+  Activity,
+  FileQuestion,
+} from "lucide-react"
 
 import type { SchemaVersion } from "@/lib/api/schemas"
+import type { ExperienceType } from "@/lib/api/experience-types"
+import { PAI_PLAN_SCHEMA_KEY } from "@/lib/schema-model"
 import { useSchemas, usePublishSchema, useDeleteSchema } from "@/hooks/use-schemas"
+import { useExperienceTypes } from "@/hooks/use-experience-types"
 import { TopBar } from "@/components/top-bar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -30,8 +47,51 @@ type ConfirmAction =
   | { type: "publish"; version: SchemaVersion }
   | { type: "delete"; version: SchemaVersion }
 
+const ICON_MAP: Record<string, React.ElementType> = {
+  moon: Moon,
+  sparkles: Sparkles,
+  meditation: Brain,
+  insight: Lightbulb,
+  activity: Activity,
+}
+
+interface GroupMeta {
+  title: string
+  kind: "experience" | "follow_up" | "outro"
+  icon: React.ElementType
+}
+
+function humanizeKey(key: string): string {
+  return key
+    .split("_")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+}
+
+function resolveGroupMeta(key: string, experienceTypes: ExperienceType[] | undefined): GroupMeta {
+  const asMain = experienceTypes?.find((et) => et.schema_key === key)
+  if (asMain) {
+    return { title: asMain.title, kind: "experience", icon: ICON_MAP[asMain.icon] ?? Sparkles }
+  }
+
+  const asFollowUp = experienceTypes?.find((et) => et.follow_up_schema_key === key)
+  if (asFollowUp) {
+    return {
+      title: `Acompanhamento de ${asFollowUp.title}`,
+      kind: "follow_up",
+      icon: ICON_MAP[asFollowUp.icon] ?? Sparkles,
+    }
+  }
+
+  return { title: humanizeKey(key), kind: "outro", icon: FileQuestion }
+}
+
 function groupByKey(versions: SchemaVersion[]): Record<string, SchemaVersion[]> {
   return versions.reduce<Record<string, SchemaVersion[]>>((acc, v) => {
+    // PAI has its own dedicated page (/pai) — showing it here too would be
+    // a confusing second place to manage the same form.
+    if (v.schema_key === PAI_PLAN_SCHEMA_KEY) return acc
     if (!acc[v.schema_key]) acc[v.schema_key] = []
     acc[v.schema_key].push(v)
     return acc
@@ -40,6 +100,7 @@ function groupByKey(versions: SchemaVersion[]): Record<string, SchemaVersion[]> 
 
 export default function SchemasPage() {
   const { data, isLoading, isError } = useSchemas()
+  const { data: experienceTypes } = useExperienceTypes()
   const publish = usePublishSchema()
   const deleteSchema = useDeleteSchema()
 
@@ -51,7 +112,11 @@ export default function SchemasPage() {
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
 
   const grouped = groupByKey(data ?? [])
-  const keys = Object.keys(grouped).sort()
+  const keys = Object.keys(grouped).sort((a, b) => {
+    const metaA = resolveGroupMeta(a, experienceTypes)
+    const metaB = resolveGroupMeta(b, experienceTypes)
+    return metaA.title.localeCompare(metaB.title)
+  })
 
   function handleConfirm() {
     if (!confirmAction) return
@@ -112,13 +177,30 @@ export default function SchemasPage() {
             {keys.map((key) => {
               const versions = [...grouped[key]].sort((a, b) => b.schema_version - a.schema_version)
               const publishedVersion = versions.find((v) => v.is_active)
+              const meta = resolveGroupMeta(key, experienceTypes)
+              const Icon = meta.icon
+              const kindLabel =
+                meta.kind === "experience"
+                  ? "Experiência"
+                  : meta.kind === "follow_up"
+                    ? "Follow-up"
+                    : "Sistema"
 
               return (
                 <Collapsible key={key} defaultOpen>
                   <div className="rounded-lg border">
                     <div className="flex items-center justify-between pr-2">
                       <CollapsibleTrigger className="flex flex-1 items-center gap-3 p-4 text-left hover:bg-muted/50">
-                        <code className="text-sm font-medium">{key}</code>
+                        <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">{meta.title}</span>
+                            <Badge variant="outline" className="text-[10px] font-normal">
+                              {kindLabel}
+                            </Badge>
+                          </div>
+                          <code className="text-[11px] text-muted-foreground">{key}</code>
+                        </div>
                         {publishedVersion && (
                           <Badge variant="secondary" className="gap-1 text-xs">
                             <CheckCircle2 className="h-3 w-3 text-green-600" />
