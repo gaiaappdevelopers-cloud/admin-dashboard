@@ -156,6 +156,7 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
     }
 
     if (isEditing) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { schema_key: _, ...updatePayload } = normalized
       await update.mutateAsync({ id: editTarget.id, payload: updatePayload })
     } else {
@@ -164,6 +165,7 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
     onOpenChange(false)
   }
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const iconColor = watch("icon_color")
   const selectedIcon = watch("icon")
   const supportsFollowUp = watch("supports_follow_up")

@@ -128,7 +128,7 @@ export default function SchemasPage() {
                         <span className="text-xs text-muted-foreground">
                           {versions.length} {versions.length === 1 ? "versão" : "versões"}
                         </span>
-                        <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform [[data-state=open]_&]:rotate-180" />
+                        <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform in-data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                       <Button
                         variant="ghost"

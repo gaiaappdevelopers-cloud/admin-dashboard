@@ -142,6 +142,7 @@ export function PageFormDialog({ open, onOpenChange, editTarget }: PageFormDialo
             <div className="space-y-1.5">
               <Label>Idioma</Label>
               <Select
+                // eslint-disable-next-line react-hooks/incompatible-library
                 value={watch("language")}
                 onValueChange={(v) => setValue("language", v as PageLanguage)}
                 disabled={isEditing}
