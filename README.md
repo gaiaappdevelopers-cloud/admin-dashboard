@@ -65,6 +65,7 @@ npm run typecheck   # tsc --noEmit
 Conectadas à API real:
 
 - **Schemas** (`/schemas`) — editor visual dos formulários dinâmicos (sections/fields/complementary fields), versionamento com publish/draft. Ver observações abaixo.
+- **PAI** (`/pai`) — mesmo editor visual do Schemas, só que fixado na chave `pai_plan` (não existe seletor de schema_key — só há um formulário de PAI). O admin só edita as perguntas; nunca vê o conteúdo que o usuário preenche.
 - **Tipos de Experiência** (`/experience-types`) — CRUD + reorder por drag-and-drop + follow-up.
 - **Páginas** (`/pages`) — conteúdo estático (Termos de Uso etc.), variantes por idioma.
 - **Blog** (`/blog-posts`) — posts com fluxo draft/publicado.

@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Stethoscope,
   Building2,
+  HeartHandshake,
 } from "lucide-react"
 
 import {
@@ -32,6 +33,7 @@ const contentNav = [
 const configNav = [
   { title: "Tipos de Experiência", href: "/experience-types", icon: Sparkles },
   { title: "Formulários", href: "/schemas", icon: Layers },
+  { title: "PAI", href: "/pai", icon: HeartHandshake },
 ]
 
 const platformNav = [

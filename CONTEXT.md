@@ -248,6 +248,10 @@ The Schema versioning system exists partly for regulatory reasons: by defining f
 
 ## PAI (Plano de Ação de Integração)
 
-An Integration Action Plan — a user-authored document built from the `is_pai_eligible` fields of a completed Experience (e.g. main insight, next step). It is presented as a separate screen in the mobile app and can be updated by the user after the Experience is submitted. Edits to the PAI do not modify the original Experience.
+An Integration Action Plan — a user-authored document the user fills out and maintains after completing an Experience, presented as a separate screen in the mobile app. Edits to the PAI do not modify the original Experience.
+
+The PAI has its own dynamic form, backed by a single fixed `schema_key`: `pai_plan` (see [[Schema]]). This is distinct from `is_pai_eligible` — that flag marks which *Experience* fields are eligible to feed into a PAI (e.g. main insight, next step) once one exists; the `pai_plan` schema is the actual form the user fills in to create/edit their plan.
+
+> Same admin/user split as everywhere else in this panel: the admin owns the `pai_plan` **schema** (questions, structure, versioning, publishing — via the dedicated `/pai` screen, since there's only ever one schema_key to manage). The admin never sees or edits the **content** of a user's plan — that's `PaiPlan.answers`, owned entirely by the user via the mobile app. Backend-side, `PaiPlan` follows the same versioned-schema pattern as `Experience`/`ExperienceFollowUp` (`schema_key`/`schema_version`/`schema_hash`/`answers`), with an optional `experience_id` linking a plan back to the Experience that prompted it.
 
 > Not managed by the admin panel. The admin configures which fields are PAI-eligible via the Schema; the user owns their PAI content entirely.
