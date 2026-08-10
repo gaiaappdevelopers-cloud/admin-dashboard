@@ -16,11 +16,13 @@ A user's explicit opt-in to anonymous data sharing for research purposes. Consen
 
 A user with `ProfileType.ADMIN` — the only role that can access this panel. A single privilege level: full access to all create, update, and delete operations across Schemas, Pages, and ExperienceTypes.
 
+> Assumed non-technical: the panel's UI must not require the admin to hand-author raw JSON (or any other code-like syntax) to accomplish common tasks such as editing a form. Where the underlying data is structured/nested (e.g. Schema sections and fields), the UI must provide dedicated visual controls rather than a code editor.
+
 ## Experience
 
 A single event logged by a user in the GAIA diary app. The user selects an ExperienceType, fills in a form defined by that type's active Schema, and the result is persisted as a diary entry.
 
-> Experiences are not created or edited by the admin panel — they are managed by the mobile app. The admin panel configures the types and forms that shape how Experiences are created.
+> Experiences are not created, edited, or viewed by the admin panel — they are managed entirely by the mobile app. The admin has no access to `answers` content at all, not even read-only, regardless of Research consent state (the anonymized research dataset is a separate, future interface — see Research consent). The admin's role is strictly to author the *questions* (via Schema), never to see the *responses*. This applies equally to Experience follow-ups (see [[ExperienceFollowUp]]).
 
 ## Schema
 
@@ -42,6 +44,7 @@ The current active ExperienceTypes are:
 - `experience_entry_reflection`
 - `experience_entry_contemplative_practice`
 - `experience_entry_transformative`
+- `experience_protocol`
 
 Legacy inactive ExperienceTypes are retained only for compatibility and must not define the future contract.
 
@@ -53,6 +56,7 @@ Key fields:
 - `icon` — semantic string key interpreted by the Flutter app. It is not an asset path and should not be treated as arbitrary text.
 - `icon_color` — free-form hex color string (e.g. `#A855F7`) interpreted by the Flutter app with a safe fallback when invalid.
 - `description` — appears as a subtitle beneath the title in the mobile app's ExperienceType selection list.
+- `supports_follow_up` / `follow_up_schema_key` — see [[ExperienceFollowUp]]. Implemented in the backend data model and mobile-facing API; not yet exposed by the admin panel.
 
 Supported `icon` keys for active ExperienceTypes:
 
@@ -60,8 +64,17 @@ Supported `icon` keys for active ExperienceTypes:
 - `sparkles` — Daily Reflection.
 - `meditation` — Contemplative Practice.
 - `insight` — Transformative Experience.
+- `activity` — Protocol.
 
 The admin panel does not define the visual layout, size, typography, icon asset, or final icon composition. It only provides semantic metadata. The Flutter app owns rendering and fallback behavior.
+
+## ExperienceFollowUp
+
+A supplementary check-in a user logs against an existing Experience over time, for ExperienceTypes that support it (currently `experience_protocol`, i.e. "Protocolo" — used for tracking an ongoing practice or recommendation). An Experience can have multiple ExperienceFollowUps.
+
+Enabled per ExperienceType via two fields: `supports_follow_up` (boolean) and `follow_up_schema_key` (the `schema_key` of the Schema used to render the follow-up form — a distinct Schema from the ExperienceType's main `schema_key`).
+
+> Implemented and active in the backend and mobile app. Not yet exposed in the admin panel — the admin cannot currently toggle `supports_follow_up` or set `follow_up_schema_key` when creating/editing an ExperienceType, even though these are ordinary Schema-backed forms like any other. Like all Experience data, follow-up answers are never visible to the admin (see [[Experience]]) — the admin's role is limited to authoring the follow-up Schema and wiring the key, the same as any other form.
 
 ## Page
 
