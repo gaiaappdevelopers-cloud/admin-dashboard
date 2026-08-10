@@ -4,15 +4,22 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Moon, Sparkles, Brain, Lightbulb } from "lucide-react"
+import { Moon, Sparkles, Brain, Lightbulb, Activity } from "lucide-react"
 
 import type { ExperienceType } from "@/lib/api/experience-types"
-import { useCreateExperienceType, useUpdateExperienceType } from "@/hooks/use-experience-types"
+import { SNAKE_CASE_KEY_PATTERN } from "@/lib/schema-model"
+import {
+  useCreateExperienceType,
+  useUpdateExperienceType,
+  useExperienceTypes,
+} from "@/hooks/use-experience-types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { LabelWithHint } from "@/components/label-with-hint"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { ComboboxInput } from "@/components/combobox-input"
 import {
   Dialog,
   DialogContent,
@@ -22,28 +29,48 @@ import {
 } from "@/components/ui/dialog"
 
 const ICON_OPTIONS = [
-  { key: "moon", label: "Moon", Icon: Moon },
-  { key: "sparkles", label: "Sparkles", Icon: Sparkles },
-  { key: "meditation", label: "Meditation", Icon: Brain },
+  { key: "moon", label: "Lua", Icon: Moon },
+  { key: "sparkles", label: "Brilho", Icon: Sparkles },
+  { key: "meditation", label: "Meditação", Icon: Brain },
   { key: "insight", label: "Insight", Icon: Lightbulb },
+  { key: "activity", label: "Atividade", Icon: Activity },
 ] as const
 
 type IconKey = (typeof ICON_OPTIONS)[number]["key"]
 
-const schema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  schema_key: z
-    .string()
-    .min(1, "Schema key is required")
-    .regex(/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/, "Must be snake_case (e.g. meditation_form)"),
-  icon: z.enum(["moon", "sparkles", "meditation", "insight"]),
-  icon_color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Must be a valid hex color (e.g. #A855F7)"),
-  is_suggested: z.boolean(),
-  is_active: z.boolean(),
-})
+const schema = z
+  .object({
+    title: z.string().min(1, "Título é obrigatório"),
+    description: z.string().min(1, "Descrição é obrigatória"),
+    schema_key: z
+      .string()
+      .min(1, "Chave do formulário é obrigatória")
+      .regex(SNAKE_CASE_KEY_PATTERN, "Deve estar em snake_case (ex: meditation_form)"),
+    icon: z.enum(["moon", "sparkles", "meditation", "insight", "activity"]),
+    icon_color: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/, "Deve ser uma cor hexadecimal válida (ex: #A855F7)"),
+    is_suggested: z.boolean(),
+    is_active: z.boolean(),
+    supports_follow_up: z.boolean(),
+    follow_up_schema_key: z.string(),
+  })
+  .refine(
+    (values) => !values.supports_follow_up || values.follow_up_schema_key.trim().length > 0,
+    {
+      message: "Chave do formulário de follow-up é obrigatória quando o follow-up está ativado",
+      path: ["follow_up_schema_key"],
+    }
+  )
+  .refine(
+    (values) =>
+      !values.supports_follow_up ||
+      SNAKE_CASE_KEY_PATTERN.test(values.follow_up_schema_key.trim()),
+    {
+      message: "Deve estar em snake_case (ex: experience_protocol_follow_up)",
+      path: ["follow_up_schema_key"],
+    }
+  )
 
 type FormValues = z.infer<typeof schema>
 
@@ -58,6 +85,15 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
   const create = useCreateExperienceType()
   const update = useUpdateExperienceType()
   const isPending = create.isPending || update.isPending
+  const { data: experienceTypes } = useExperienceTypes()
+
+  const followUpSchemaKeyOptions = [
+    ...new Set(
+      (experienceTypes ?? [])
+        .map((et) => et.follow_up_schema_key)
+        .filter((key): key is string => !!key)
+    ),
+  ].sort()
 
   const {
     register,
@@ -76,6 +112,8 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
       icon_color: "#8752AD",
       is_suggested: false,
       is_active: true,
+      supports_follow_up: false,
+      follow_up_schema_key: "",
     },
   })
 
@@ -91,6 +129,8 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
               icon_color: editTarget.icon_color,
               is_suggested: editTarget.is_suggested,
               is_active: editTarget.is_active,
+              supports_follow_up: editTarget.supports_follow_up,
+              follow_up_schema_key: editTarget.follow_up_schema_key ?? "",
             }
           : {
               title: "",
@@ -100,55 +140,71 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
               icon_color: "#8752AD",
               is_suggested: false,
               is_active: true,
+              supports_follow_up: false,
+              follow_up_schema_key: "",
             }
       )
     }
   }, [open, editTarget, reset])
 
   async function onSubmit(values: FormValues) {
+    const normalized = {
+      ...values,
+      follow_up_schema_key: values.supports_follow_up
+        ? values.follow_up_schema_key.trim()
+        : null,
+    }
+
     if (isEditing) {
-      const { schema_key: _, ...updatePayload } = values
+      const { schema_key: _, ...updatePayload } = normalized
       await update.mutateAsync({ id: editTarget.id, payload: updatePayload })
     } else {
-      await create.mutateAsync(values)
+      await create.mutateAsync(normalized)
     }
     onOpenChange(false)
   }
 
   const iconColor = watch("icon_color")
   const selectedIcon = watch("icon")
+  const supportsFollowUp = watch("supports_follow_up")
+  const followUpSchemaKey = watch("follow_up_schema_key")
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="md:max-w-xl">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Edit Experience Type" : "New Experience Type"}
+            {isEditing ? "Editar Tipo de Experiência" : "Novo Tipo de Experiência"}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 space-y-1.5">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">Título</Label>
               <Input id="title" {...register("title")} />
               {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
             </div>
 
             <div className="col-span-2 space-y-1.5">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Descrição</Label>
               <Textarea id="description" rows={2} {...register("description")} />
               {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
             </div>
 
             <div className="col-span-2 space-y-1.5">
-              <Label htmlFor="schema_key">Schema key</Label>
-              <Input id="schema_key" placeholder="e.g. meditation_form" disabled={isEditing} {...register("schema_key")} />
+              <LabelWithHint
+                htmlFor="schema_key"
+                hint="Liga esse Tipo de Experiência ao formulário que o usuário preenche. Precisa bater com a chave de um formulário cadastrado em Formulários."
+              >
+                Chave do formulário
+              </LabelWithHint>
+              <Input id="schema_key" placeholder="ex: meditation_form" disabled={isEditing} {...register("schema_key")} />
               {errors.schema_key && <p className="text-xs text-destructive">{errors.schema_key.message}</p>}
             </div>
 
             <div className="col-span-2 space-y-1.5">
-              <Label>Icon</Label>
+              <Label>Ícone</Label>
               <div className="grid grid-cols-4 gap-2">
                 {ICON_OPTIONS.map(({ key, label, Icon }) => (
                   <button
@@ -170,7 +226,7 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="icon_color">Icon color</Label>
+              <Label htmlFor="icon_color">Cor do ícone</Label>
               <div className="flex gap-2 items-center">
                 <input
                   type="color"
@@ -190,7 +246,12 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="is_suggested">Suggested</Label>
+                <LabelWithHint
+                  htmlFor="is_suggested"
+                  hint="Destaca esse tipo pros usuários novos, como sugestão inicial na tela de escolha de Experiência."
+                >
+                  Sugerido
+                </LabelWithHint>
                 <Switch
                   id="is_suggested"
                   checked={watch("is_suggested")}
@@ -198,22 +259,63 @@ export function FormDialog({ open, onOpenChange, editTarget }: FormDialogProps) 
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="is_active">Active</Label>
+                <LabelWithHint
+                  htmlFor="is_active"
+                  hint="Quando desligado, esse tipo some da lista de novas Experiências no app — mas Experiências já registradas com ele continuam acessíveis no diário do usuário."
+                >
+                  Ativo
+                </LabelWithHint>
                 <Switch
                   id="is_active"
                   checked={watch("is_active")}
                   onCheckedChange={(v) => setValue("is_active", v)}
                 />
               </div>
+              <div className="flex items-center justify-between">
+                <LabelWithHint
+                  htmlFor="supports_follow_up"
+                  hint="Permite que o usuário registre acompanhamentos ao longo do tempo pra uma mesma Experiência (ex: evolução de uma prática ou recomendação)."
+                >
+                  Permite follow-up
+                </LabelWithHint>
+                <Switch
+                  id="supports_follow_up"
+                  checked={supportsFollowUp}
+                  onCheckedChange={(v) => setValue("supports_follow_up", v)}
+                />
+              </div>
             </div>
+
+            {supportsFollowUp && (
+              <div className="col-span-2 space-y-1.5">
+                <Label htmlFor="follow_up_schema_key">Chave do formulário de follow-up</Label>
+                <ComboboxInput
+                  id="follow_up_schema_key"
+                  value={followUpSchemaKey}
+                  onChange={(v) => setValue("follow_up_schema_key", v)}
+                  options={followUpSchemaKeyOptions}
+                  placeholder="ex: experience_protocol_follow_up"
+                  className="font-mono"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Escolha uma chave de follow-up existente, ou digite uma nova — o
+                  formulário dela é criado depois, na página de Formulários.
+                </p>
+                {errors.follow_up_schema_key && (
+                  <p className="text-xs text-destructive">
+                    {errors.follow_up_schema_key.message}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving…" : isEditing ? "Save changes" : "Create"}
+              {isPending ? "Salvando…" : isEditing ? "Salvar alterações" : "Criar"}
             </Button>
           </DialogFooter>
         </form>

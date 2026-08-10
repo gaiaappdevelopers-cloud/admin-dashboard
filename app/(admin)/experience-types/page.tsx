@@ -16,7 +16,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Pencil, Trash2, Plus, Moon, Sparkles, Brain, Lightbulb, AlertCircle } from "lucide-react"
+import { GripVertical, Pencil, Trash2, Plus, Moon, Sparkles, Brain, Lightbulb, Activity, AlertCircle } from "lucide-react"
 
 import type { ExperienceType } from "@/lib/api/experience-types"
 import {
@@ -54,6 +54,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   sparkles: Sparkles,
   meditation: Brain,
   insight: Lightbulb,
+  activity: Activity,
 }
 
 function SortableRow({
@@ -104,7 +105,14 @@ function SortableRow({
         <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{et.schema_key}</code>
       </TableCell>
       <TableCell>
-        {et.is_suggested && <Badge variant="secondary">Suggested</Badge>}
+        <div className="flex flex-wrap gap-1">
+          {et.is_suggested && <Badge variant="secondary">Sugerido</Badge>}
+          {et.supports_follow_up && (
+            <Badge variant="outline" className="font-mono text-[10px]">
+              follow-up: {et.follow_up_schema_key}
+            </Badge>
+          )}
+        </div>
       </TableCell>
       <TableCell>
         <Switch
@@ -183,22 +191,22 @@ export default function ExperienceTypesPage() {
 
   return (
     <>
-      <TopBar title="Experience Types" />
+      <TopBar title="Tipos de Experiência" />
       <main className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {data ? `${data.length} types` : ""}
+            {data ? `${data.length} tipos` : ""}
           </p>
           <Button size="sm" onClick={handleNewClick}>
             <Plus className="mr-1.5 h-4 w-4" />
-            New Experience Type
+            Novo Tipo de Experiência
           </Button>
         </div>
 
         {isError && (
           <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
             <AlertCircle className="h-4 w-4 shrink-0" />
-            Failed to load experience types.
+            Falha ao carregar os tipos de experiência.
           </div>
         )}
 
@@ -219,12 +227,12 @@ export default function ExperienceTypesPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-8" />
-                    <TableHead className="w-10">Icon</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Schema key</TableHead>
-                    <TableHead>Suggested</TableHead>
-                    <TableHead>Active</TableHead>
-                    <TableHead className="text-center">Order</TableHead>
+                    <TableHead className="w-10">Ícone</TableHead>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Chave do formulário</TableHead>
+                    <TableHead>Sugerido</TableHead>
+                    <TableHead>Ativo</TableHead>
+                    <TableHead className="text-center">Ordem</TableHead>
                     <TableHead className="w-20" />
                   </TableRow>
                 </TableHeader>
@@ -261,14 +269,14 @@ export default function ExperienceTypesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete "{deleteTarget?.title}"?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir &quot;{deleteTarget?.title}&quot;?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove this experience type. Users will no longer
-              see it in the mobile app. This action cannot be undone.
+              Isso vai remover esse tipo de experiência permanentemente. Os usuários não
+              vão mais vê-lo no app mobile. Essa ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
@@ -278,7 +286,7 @@ export default function ExperienceTypesPage() {
                 }
               }}
             >
-              Delete
+              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

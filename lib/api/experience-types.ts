@@ -10,6 +10,8 @@ export interface ExperienceType {
   is_suggested: boolean
   display_order: number
   is_active: boolean
+  supports_follow_up: boolean
+  follow_up_schema_key: string | null
   created_at: string
   updated_at: string
 }
@@ -23,6 +25,8 @@ export interface CreateExperienceTypePayload {
   is_suggested?: boolean
   display_order?: number
   is_active?: boolean
+  supports_follow_up?: boolean
+  follow_up_schema_key?: string | null
 }
 
 export type UpdateExperienceTypePayload = Partial<Omit<CreateExperienceTypePayload, "schema_key">>
