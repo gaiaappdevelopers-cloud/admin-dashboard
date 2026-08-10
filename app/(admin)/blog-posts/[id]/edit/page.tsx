@@ -28,7 +28,7 @@ export default function EditBlogPostPage({ params }: EditBlogPostPageProps) {
     return (
       <div className="flex items-center gap-2 m-6 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
         <AlertCircle className="h-4 w-4 shrink-0" />
-        Post not found.
+        Post não encontrado.
       </div>
     )
   }

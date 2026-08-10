@@ -12,8 +12,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 const loginSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email("Digite um e-mail válido"),
+  password: z.string().min(1, "Senha é obrigatória"),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
@@ -37,7 +37,7 @@ export default function LoginPage() {
       router.push("/dashboard")
       router.refresh()
     } catch (err) {
-      setServerError(err instanceof Error ? err.message : "Login failed")
+      setServerError(err instanceof Error ? err.message : "Falha ao entrar")
     }
   }
 
@@ -51,17 +51,17 @@ export default function LoginPage() {
           >
             GAIA
           </h1>
-          <p className="text-sm -mt-2 text-muted-foreground">Admin Panel</p>
+          <p className="text-sm -mt-2 text-muted-foreground">Painel Administrativo</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mail</Label>
             <Input
               id="email"
               type="email"
               autoComplete="email"
-              placeholder="admin@gaia.app"
+              placeholder="admin@gaia.com"
                className="rounded-none"
               {...register("email")}
             />
@@ -71,7 +71,7 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Senha</Label>
             <Input
               id="password"
               type="password"
@@ -89,7 +89,7 @@ export default function LoginPage() {
           )}
 
           <Button type="submit" className="w-full bg-[#2C2C3A] text-white rounded-none" disabled={isSubmitting}>
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? "Entrando…" : "Entrar"}
           </Button>
         </form>
       </div>

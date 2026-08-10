@@ -30,7 +30,7 @@ import {
 import { RichTextEditor } from "@/components/rich-text-editor"
 
 const schema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, "Título é obrigatório"),
   language: z.enum(["pt", "en"]),
 })
 
@@ -114,7 +114,7 @@ export function PostEditor({ post }: PostEditorProps) {
         </Button>
 
         <span className="flex-1 text-sm font-semibold">
-          {isEditing ? "Edit post" : "New post"}
+          {isEditing ? "Editar post" : "Novo post"}
         </span>
 
         <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ export function PostEditor({ post }: PostEditorProps) {
                   : ""
               }
             >
-              {post.status === "PUBLISHED" ? "Published" : "Draft"}
+              {post.status === "PUBLISHED" ? "Publicado" : "Rascunho"}
             </Badge>
           )}
 
@@ -138,12 +138,12 @@ export function PostEditor({ post }: PostEditorProps) {
               disabled={isPending}
               onClick={handleSubmit(handlePublish)}
             >
-              {post?.status === "PUBLISHED" ? "Unpublish" : "Publish"}
+              {post?.status === "PUBLISHED" ? "Despublicar" : "Publicar"}
             </Button>
           )}
 
           <Button size="sm" disabled={isPending} onClick={handleSubmit(onSubmit)}>
-            {isPending ? "Saving…" : isEditing ? "Save" : "Save draft"}
+            {isPending ? "Salvando…" : isEditing ? "Salvar" : "Salvar rascunho"}
           </Button>
         </div>
       </header>
@@ -151,15 +151,15 @@ export function PostEditor({ post }: PostEditorProps) {
       <div className="flex flex-1 flex-col gap-4 overflow-auto p-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" placeholder="Post title…" {...register("title")} />
+            <Label htmlFor="title">Título</Label>
+            <Input id="title" placeholder="Título do post…" {...register("title")} />
             {errors.title && (
               <p className="text-xs text-destructive">{errors.title.message}</p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label>Language</Label>
+            <Label>Idioma</Label>
             <Select
               value={watch("language")}
               onValueChange={(v) => setValue("language", v as PageLanguage)}
@@ -169,8 +169,8 @@ export function PostEditor({ post }: PostEditorProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pt">Portuguese (PT)</SelectItem>
-                <SelectItem value="en">English (EN)</SelectItem>
+                <SelectItem value="pt">Português (PT)</SelectItem>
+                <SelectItem value="en">Inglês (EN)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -178,15 +178,15 @@ export function PostEditor({ post }: PostEditorProps) {
 
         <Tabs defaultValue="edit" className="flex flex-1 flex-col">
           <TabsList className="w-fit">
-            <TabsTrigger value="edit">Edit</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
+            <TabsTrigger value="edit">Editar</TabsTrigger>
+            <TabsTrigger value="preview">Pré-visualização</TabsTrigger>
           </TabsList>
 
           <TabsContent value="edit" className="flex-1">
             <RichTextEditor
               value={content}
               onChange={setContent}
-              placeholder="Write your post content…"
+              placeholder="Escreva o conteúdo do post…"
               className="h-full min-h-[400px]"
             />
           </TabsContent>
@@ -199,7 +199,7 @@ export function PostEditor({ post }: PostEditorProps) {
               />
             ) : (
               <div className="flex min-h-[400px] items-center justify-center rounded-md border text-sm text-muted-foreground">
-                Nothing to preview yet — write something in the Edit tab.
+                Nada pra pré-visualizar ainda — escreva algo na aba Editar.
               </div>
             )}
           </TabsContent>

@@ -60,9 +60,14 @@ const MOCK_PROFESSIONALS: MockProfessional[] = [
 ]
 
 const STATUS_CONFIG: Record<ProfessionalStatus, { label: string; className: string }> = {
-  pending_verification: { label: "Pending", className: "bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/10 dark:text-yellow-400" },
-  active: { label: "Active", className: "bg-green-600/10 text-green-700 hover:bg-green-600/10 dark:text-green-400" },
-  rejected: { label: "Rejected", className: "bg-destructive/10 text-destructive hover:bg-destructive/10" },
+  pending_verification: { label: "Pendente", className: "bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/10 dark:text-yellow-400" },
+  active: { label: "Ativo", className: "bg-green-600/10 text-green-700 hover:bg-green-600/10 dark:text-green-400" },
+  rejected: { label: "Rejeitado", className: "bg-destructive/10 text-destructive hover:bg-destructive/10" },
+}
+
+const SPECIALTY_LABELS: Record<MockProfessional["specialty"], string> = {
+  psychologist: "Psicólogo(a)",
+  psychiatrist: "Psiquiatra",
 }
 
 const REGISTER_URL: Record<"CRP" | "CRM", string> = {
@@ -118,21 +123,21 @@ export default function ProfessionalsPage() {
 
   return (
     <>
-      <TopBar title="Professionals" />
+      <TopBar title="Profissionais" />
       <main className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
             <TabsList>
-              <TabsTrigger value="all">All <span className="ml-1.5 text-muted-foreground">{counts.all}</span></TabsTrigger>
-              <TabsTrigger value="pending_verification">Pending <span className="ml-1.5 text-muted-foreground">{counts.pending_verification}</span></TabsTrigger>
-              <TabsTrigger value="active">Active <span className="ml-1.5 text-muted-foreground">{counts.active}</span></TabsTrigger>
-              <TabsTrigger value="rejected">Rejected <span className="ml-1.5 text-muted-foreground">{counts.rejected}</span></TabsTrigger>
+              <TabsTrigger value="all">Todos <span className="ml-1.5 text-muted-foreground">{counts.all}</span></TabsTrigger>
+              <TabsTrigger value="pending_verification">Pendentes <span className="ml-1.5 text-muted-foreground">{counts.pending_verification}</span></TabsTrigger>
+              <TabsTrigger value="active">Ativos <span className="ml-1.5 text-muted-foreground">{counts.active}</span></TabsTrigger>
+              <TabsTrigger value="rejected">Rejeitados <span className="ml-1.5 text-muted-foreground">{counts.rejected}</span></TabsTrigger>
             </TabsList>
           </Tabs>
 
           <Badge variant="outline" className="gap-1.5 text-xs font-normal rounded-sm">
             <Stethoscope className="h-3 w-3" />
-            Coming soon · mock data
+            Em breve · dados de exemplo
           </Badge>
         </div>
 
@@ -140,11 +145,11 @@ export default function ProfessionalsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Specialty</TableHead>
-                <TableHead>Register</TableHead>
-                <TableHead>State</TableHead>
-                <TableHead>Submitted</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Especialidade</TableHead>
+                <TableHead>Registro</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Enviado</TableHead>
                 <TableHead className="pl-4">Status</TableHead>
                 <TableHead className="w-32" />
               </TableRow>
@@ -153,14 +158,14 @@ export default function ProfessionalsPage() {
               {filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
-                    No professionals found.
+                    Nenhum profissional encontrado.
                   </TableCell>
                 </TableRow>
               ) : filtered.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell className="capitalize text-sm text-muted-foreground">
-                    {p.specialty}
+                  <TableCell className="text-sm text-muted-foreground">
+                    {SPECIALTY_LABELS[p.specialty]}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1.5">
@@ -169,7 +174,7 @@ export default function ProfessionalsPage() {
                         href={REGISTER_URL[p.register_type]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title={`Verify on ${p.register_type === "CRP" ? "CFP" : "CFM"}`}
+                        title={`Verificar no ${p.register_type === "CRP" ? "CFP" : "CFM"}`}
                       >
                         <ExternalLink className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                       </a>
@@ -206,7 +211,7 @@ export default function ProfessionalsPage() {
                             onClick={() => setApproveTarget(p)}
                           >
                             <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
-                            Approve
+                            Aprovar
                           </Button>
                           <Button
                             variant="ghost"
@@ -215,7 +220,7 @@ export default function ProfessionalsPage() {
                             onClick={() => { setRejectTarget(p); setRejectReason("") }}
                           >
                             <XCircle className="mr-1 h-3.5 w-3.5" />
-                            Reject
+                            Rejeitar
                           </Button>
                         </>
                       )}
@@ -240,16 +245,16 @@ export default function ProfessionalsPage() {
       <AlertDialog open={!!approveTarget} onOpenChange={(o) => !o && setApproveTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Approve {approveTarget?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>Aprovar {approveTarget?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Make sure you have verified {approveTarget?.register_number} on the{" "}
-              {approveTarget?.register_type === "CRP" ? "CFP" : "CFM"} register before approving.
-              The account will be activated immediately.
+              Confirme que você verificou {approveTarget?.register_number} no registro do{" "}
+              {approveTarget?.register_type === "CRP" ? "CFP" : "CFM"} antes de aprovar.
+              A conta será ativada imediatamente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleApprove}>Approve</AlertDialogAction>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleApprove}>Aprovar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -258,26 +263,26 @@ export default function ProfessionalsPage() {
       <Dialog open={!!rejectTarget} onOpenChange={(o) => !o && setRejectTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject {rejectTarget?.name}?</DialogTitle>
+            <DialogTitle>Rejeitar {rejectTarget?.name}?</DialogTitle>
           </DialogHeader>
           <div className="space-y-1.5 py-2">
-            <Label htmlFor="reason">Reason (sent to the applicant)</Label>
+            <Label htmlFor="reason">Motivo (enviado ao candidato)</Label>
             <Textarea
               id="reason"
               rows={3}
-              placeholder="e.g. Register number not found in the CFP database."
+              placeholder="ex: Número de registro não encontrado na base do CFP."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectTarget(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRejectTarget(null)}>Cancelar</Button>
             <Button
               variant="destructive"
               disabled={!rejectReason.trim()}
               onClick={handleReject}
             >
-              Reject
+              Rejeitar
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -287,18 +292,18 @@ export default function ProfessionalsPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {deleteTarget?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir {deleteTarget?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the account. This action cannot be undone.
+              Isso vai remover a conta permanentemente. Essa ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDelete}
             >
-              Delete
+              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

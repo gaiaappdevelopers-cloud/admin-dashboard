@@ -62,10 +62,10 @@ const MOCK_ESTABLISHMENTS: MockEstablishment[] = [
 ]
 
 const STATUS_CONFIG: Record<EstablishmentStatus, { label: string; className: string }> = {
-  pending_verification: { label: "Pending", className: "bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/10 dark:text-yellow-400" },
-  active: { label: "Active", className: "bg-green-600/10 text-green-700 hover:bg-green-600/10 dark:text-green-400" },
-  suspended: { label: "Suspended", className: "bg-orange-500/10 text-orange-700 hover:bg-orange-500/10 dark:text-orange-400" },
-  rejected: { label: "Rejected", className: "bg-destructive/10 text-destructive hover:bg-destructive/10" },
+  pending_verification: { label: "Pendente", className: "bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/10 dark:text-yellow-400" },
+  active: { label: "Ativo", className: "bg-green-600/10 text-green-700 hover:bg-green-600/10 dark:text-green-400" },
+  suspended: { label: "Suspenso", className: "bg-orange-500/10 text-orange-700 hover:bg-orange-500/10 dark:text-orange-400" },
+  rejected: { label: "Rejeitado", className: "bg-destructive/10 text-destructive hover:bg-destructive/10" },
 }
 
 type Tab = "all" | EstablishmentStatus
@@ -95,22 +95,22 @@ export default function EstablishmentsPage() {
 
   return (
     <>
-      <TopBar title="Establishments" />
+      <TopBar title="Estabelecimentos" />
       <main className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
             <TabsList>
-              <TabsTrigger value="all">All <span className="ml-1.5 text-muted-foreground">{counts.all}</span></TabsTrigger>
-              <TabsTrigger value="pending_verification">Pending <span className="ml-1.5 text-muted-foreground">{counts.pending_verification}</span></TabsTrigger>
-              <TabsTrigger value="active">Active <span className="ml-1.5 text-muted-foreground">{counts.active}</span></TabsTrigger>
-              <TabsTrigger value="suspended">Suspended <span className="ml-1.5 text-muted-foreground">{counts.suspended}</span></TabsTrigger>
-              <TabsTrigger value="rejected">Rejected <span className="ml-1.5 text-muted-foreground">{counts.rejected}</span></TabsTrigger>
+              <TabsTrigger value="all">Todos <span className="ml-1.5 text-muted-foreground">{counts.all}</span></TabsTrigger>
+              <TabsTrigger value="pending_verification">Pendentes <span className="ml-1.5 text-muted-foreground">{counts.pending_verification}</span></TabsTrigger>
+              <TabsTrigger value="active">Ativos <span className="ml-1.5 text-muted-foreground">{counts.active}</span></TabsTrigger>
+              <TabsTrigger value="suspended">Suspensos <span className="ml-1.5 text-muted-foreground">{counts.suspended}</span></TabsTrigger>
+              <TabsTrigger value="rejected">Rejeitados <span className="ml-1.5 text-muted-foreground">{counts.rejected}</span></TabsTrigger>
             </TabsList>
           </Tabs>
 
           <Badge variant="outline" className="gap-1.5 text-xs font-normal rounded-sm">
             <Building2 className="h-3 w-3" />
-            Coming soon · mock data
+            Em breve · dados de exemplo
           </Badge>
         </div>
 
@@ -118,11 +118,11 @@ export default function EstablishmentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Responsible</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Rituals</TableHead>
-                <TableHead>Submitted</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Responsável</TableHead>
+                <TableHead>Localização</TableHead>
+                <TableHead>Rituais</TableHead>
+                <TableHead>Enviado</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-40" />
               </TableRow>
@@ -131,7 +131,7 @@ export default function EstablishmentsPage() {
               {filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
-                    No establishments found.
+                    Nenhum estabelecimento encontrado.
                   </TableCell>
                 </TableRow>
               ) : filtered.map((e) => (
@@ -182,24 +182,24 @@ export default function EstablishmentsPage() {
                         <>
                           <Button variant="ghost" size="sm" className="h-7 text-xs text-green-700 hover:text-green-700 hover:bg-green-600/10" onClick={() => setApproveTarget(e)}>
                             <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
-                            Approve
+                            Aprovar
                           </Button>
                           <Button variant="ghost" size="sm" className="h-7 text-xs text-destructive hover:text-destructive" onClick={() => { setRejectTarget(e); setRejectReason("") }}>
                             <XCircle className="mr-1 h-3.5 w-3.5" />
-                            Reject
+                            Rejeitar
                           </Button>
                         </>
                       )}
                       {e.status === "active" && (
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-orange-700 hover:text-orange-700 hover:bg-orange-500/10" onClick={() => setSuspendTarget(e)}>
                           <PauseCircle className="mr-1 h-3.5 w-3.5" />
-                          Suspend
+                          Suspender
                         </Button>
                       )}
                       {e.status === "suspended" && (
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-green-700 hover:text-green-700 hover:bg-green-600/10" onClick={() => update(e.id, { status: "active" })}>
                           <PlayCircle className="mr-1 h-3.5 w-3.5" />
-                          Reinstate
+                          Reativar
                         </Button>
                       )}
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(e)}>
@@ -218,16 +218,17 @@ export default function EstablishmentsPage() {
       <AlertDialog open={!!approveTarget} onOpenChange={(o) => !o && setApproveTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Approve `{approveTarget?.name}`?</AlertDialogTitle>
+            <AlertDialogTitle>Aprovar `{approveTarget?.name}`?</AlertDialogTitle>
             <AlertDialogDescription>
-              The establishment will be listed as a vetted space in the mobile app marketplace.
-              Make sure you have reviewed the submitted information and CNPJ before approving.
+              O estabelecimento será listado como um espaço verificado no marketplace do
+              app mobile. Confirme que você revisou as informações enviadas e o CNPJ antes
+              de aprovar.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={() => { update(approveTarget!.id, { status: "active" }); setApproveTarget(null) }}>
-              Approve
+              Aprovar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -237,16 +238,16 @@ export default function EstablishmentsPage() {
       <Dialog open={!!rejectTarget} onOpenChange={(o) => !o && setRejectTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject `{rejectTarget?.name}`?</DialogTitle>
+            <DialogTitle>Rejeitar `{rejectTarget?.name}`?</DialogTitle>
           </DialogHeader>
           <div className="space-y-1.5 py-2">
-            <Label htmlFor="reason">Reason (sent to the applicant)</Label>
-            <Textarea id="reason" rows={3} placeholder="e.g. CNPJ not found in Receita Federal." value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
+            <Label htmlFor="reason">Motivo (enviado ao candidato)</Label>
+            <Textarea id="reason" rows={3} placeholder="ex: CNPJ não encontrado na Receita Federal." value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectTarget(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRejectTarget(null)}>Cancelar</Button>
             <Button variant="destructive" disabled={!rejectReason.trim()} onClick={() => { update(rejectTarget!.id, { status: "rejected", rejection_reason: rejectReason.trim() }); setRejectTarget(null); setRejectReason("") }}>
-              Reject
+              Rejeitar
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -256,19 +257,19 @@ export default function EstablishmentsPage() {
       <AlertDialog open={!!suspendTarget} onOpenChange={(o) => !o && setSuspendTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Suspend `{suspendTarget?.name}`?</AlertDialogTitle>
+            <AlertDialogTitle>Suspender `{suspendTarget?.name}`?</AlertDialogTitle>
             <AlertDialogDescription>
-              The establishment will be hidden from the marketplace while suspended.
-              You can reinstate them at any time.
+              O estabelecimento fica escondido do marketplace enquanto estiver suspenso.
+              Você pode reativá-lo a qualquer momento.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-orange-600 text-white hover:bg-orange-700"
               onClick={() => { update(suspendTarget!.id, { status: "suspended" }); setSuspendTarget(null) }}
             >
-              Suspend
+              Suspender
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -278,19 +279,19 @@ export default function EstablishmentsPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete `{deleteTarget?.name}`?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir `{deleteTarget?.name}`?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the establishment and all associated data.
-              This action cannot be undone.
+              Isso vai remover o estabelecimento e todos os dados associados
+              permanentemente. Essa ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => { setEstablishments((prev) => prev.filter((e) => e.id !== deleteTarget!.id)); setDeleteTarget(null) }}
             >
-              Delete
+              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

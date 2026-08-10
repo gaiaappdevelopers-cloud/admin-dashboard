@@ -51,10 +51,10 @@ interface MockReport {
 }
 
 const CATEGORY_LABEL: Record<ReportCategory, string> = {
-  unsafe_practice: "Unsafe practice",
-  misleading_information: "Misleading information",
-  inappropriate_behavior: "Inappropriate behavior",
-  other: "Other",
+  unsafe_practice: "Prática insegura",
+  misleading_information: "Informação enganosa",
+  inappropriate_behavior: "Comportamento inadequado",
+  other: "Outro",
 }
 
 const MOCK_ESTABLISHMENTS: Record<string, { name: string; reports: MockReport[] }> = {
@@ -65,7 +65,7 @@ const MOCK_ESTABLISHMENTS: Record<string, { name: string; reports: MockReport[] 
         id: "r1",
         reporter_name: "Beatriz A.",
         category: "misleading_information",
-        description: "The facilitator claimed the ceremony would cure my depression. This felt irresponsible and dangerous.",
+        description: "O facilitador afirmou que a cerimônia curaria minha depressão. Isso pareceu irresponsável e perigoso.",
         status: "pending",
         created_at: "2026-06-08T14:00:00Z",
       },
@@ -78,7 +78,7 @@ const MOCK_ESTABLISHMENTS: Record<string, { name: string; reports: MockReport[] 
         id: "r2",
         reporter_name: "Marcos T.",
         category: "unsafe_practice",
-        description: "No medical screening was conducted before the ceremony. A participant had a severe reaction.",
+        description: "Nenhuma triagem médica foi feita antes da cerimônia. Um participante teve uma reação severa.",
         status: "pending",
         created_at: "2026-06-05T09:30:00Z",
       },
@@ -86,7 +86,7 @@ const MOCK_ESTABLISHMENTS: Record<string, { name: string; reports: MockReport[] 
         id: "r3",
         reporter_name: "Renata F.",
         category: "inappropriate_behavior",
-        description: "The main facilitator acted aggressively toward a participant who wanted to leave early.",
+        description: "O facilitador principal agiu de forma agressiva com um participante que queria sair mais cedo.",
         status: "pending",
         created_at: "2026-06-06T17:10:00Z",
       },
@@ -94,7 +94,7 @@ const MOCK_ESTABLISHMENTS: Record<string, { name: string; reports: MockReport[] 
         id: "r4",
         reporter_name: "Thiago M.",
         category: "misleading_information",
-        description: "The advertising promised integration support that was never provided.",
+        description: "A divulgação prometia suporte de integração que nunca foi oferecido.",
         status: "reviewed",
         created_at: "2026-05-20T11:00:00Z",
       },
@@ -111,30 +111,30 @@ interface ConfirmState {
 
 const ACTION_CONFIG: Record<Action, { label: string; description: string; buttonClass: string }> = {
   dismiss: {
-    label: "Dismiss report",
-    description: "Mark this report as reviewed and take no further action. The reporter will not be notified.",
+    label: "Dispensar denúncia",
+    description: "Marca essa denúncia como revisada, sem nenhuma outra ação. O denunciante não é notificado.",
     buttonClass: "",
   },
   warn: {
-    label: "Issue warning",
-    description: "Mark this as reviewed and flag the establishment for a formal warning. This is recorded internally.",
+    label: "Emitir advertência",
+    description: "Marca como revisada e sinaliza o estabelecimento para uma advertência formal. Isso fica registrado internamente.",
     buttonClass: "bg-yellow-600 text-white hover:bg-yellow-700",
   },
   suspend: {
-    label: "Suspend establishment",
-    description: "The establishment will be immediately hidden from the marketplace pending investigation.",
+    label: "Suspender estabelecimento",
+    description: "O estabelecimento fica escondido do marketplace imediatamente, aguardando investigação.",
     buttonClass: "bg-orange-600 text-white hover:bg-orange-700",
   },
   delete: {
-    label: "Delete report",
-    description: "Permanently delete this report. This action cannot be undone.",
+    label: "Excluir denúncia",
+    description: "Exclui essa denúncia permanentemente. Essa ação não pode ser desfeita.",
     buttonClass: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   },
 }
 
 export default function EstablishmentReportsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const establishment = MOCK_ESTABLISHMENTS[id] ?? { name: `Establishment #${id}`, reports: [] }
+  const establishment = MOCK_ESTABLISHMENTS[id] ?? { name: `Estabelecimento #${id}`, reports: [] }
 
   const [reports, setReports] = useState(establishment.reports)
   const [confirm, setConfirm] = useState<ConfirmState | null>(null)
@@ -158,26 +158,26 @@ export default function EstablishmentReportsPage({ params }: { params: Promise<{
 
   return (
     <>
-      <TopBar title={`Reports · ${establishment.name}`} />
+      <TopBar title={`Denúncias · ${establishment.name}`} />
       <main className="p-6">
         <div className="mb-4 flex items-center gap-3">
           <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" asChild>
             <Link href="/establishments">
               <ArrowLeft className="h-3.5 w-3.5" />
-              Back to Establishments
+              Voltar para Estabelecimentos
             </Link>
           </Button>
 
           {pending > 0 && (
             <Badge className="gap-1 bg-orange-500/10 text-orange-700 hover:bg-orange-500/10 dark:text-orange-400">
               <Flag className="h-3 w-3" />
-              {pending} pending
+              {pending} pendente{pending === 1 ? "" : "s"}
             </Badge>
           )}
 
           <Badge variant="outline" className="gap-1.5 text-xs font-normal rounded-sm">
             <Flag className="h-3 w-3" />
-            Coming soon · mock data
+            Em breve · dados de exemplo
           </Badge>
         </div>
 
@@ -185,10 +185,10 @@ export default function EstablishmentReportsPage({ params }: { params: Promise<{
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Reporter</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>Denunciante</TableHead>
+                <TableHead>Categoria</TableHead>
+                <TableHead>Descrição</TableHead>
+                <TableHead>Data</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-48" />
               </TableRow>
@@ -197,7 +197,7 @@ export default function EstablishmentReportsPage({ params }: { params: Promise<{
               {reports.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
-                    No reports found for this establishment.
+                    Nenhuma denúncia encontrada para esse estabelecimento.
                   </TableCell>
                 </TableRow>
               ) : reports.map((report) => (
@@ -216,13 +216,13 @@ export default function EstablishmentReportsPage({ params }: { params: Promise<{
                   </TableCell>
                   <TableCell>
                     {report.status === "pending" && (
-                      <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/10 dark:text-yellow-400">Pending</Badge>
+                      <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/10 dark:text-yellow-400">Pendente</Badge>
                     )}
                     {report.status === "reviewed" && (
-                      <Badge className="bg-green-600/10 text-green-700 hover:bg-green-600/10 dark:text-green-400">Reviewed</Badge>
+                      <Badge className="bg-green-600/10 text-green-700 hover:bg-green-600/10 dark:text-green-400">Revisada</Badge>
                     )}
                     {report.status === "dismissed" && (
-                      <Badge variant="secondary">Dismissed</Badge>
+                      <Badge variant="secondary">Dispensada</Badge>
                     )}
                   </TableCell>
                   <TableCell>
@@ -236,7 +236,7 @@ export default function EstablishmentReportsPage({ params }: { params: Promise<{
                             onClick={() => setConfirm({ reportId: report.id, action: "dismiss" })}
                           >
                             <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
-                            Dismiss
+                            Dispensar
                           </Button>
                           <Button
                             variant="ghost"
@@ -245,7 +245,7 @@ export default function EstablishmentReportsPage({ params }: { params: Promise<{
                             onClick={() => setConfirm({ reportId: report.id, action: "warn" })}
                           >
                             <AlertTriangle className="mr-1 h-3.5 w-3.5" />
-                            Warn
+                            Advertir
                           </Button>
                           <Button
                             variant="ghost"
@@ -254,7 +254,7 @@ export default function EstablishmentReportsPage({ params }: { params: Promise<{
                             onClick={() => setConfirm({ reportId: report.id, action: "suspend" })}
                           >
                             <PauseCircle className="mr-1 h-3.5 w-3.5" />
-                            Suspend
+                            Suspender
                           </Button>
                         </>
                       )}
@@ -284,12 +284,12 @@ export default function EstablishmentReportsPage({ params }: { params: Promise<{
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className={confirm ? ACTION_CONFIG[confirm.action].buttonClass : ""}
               onClick={handleConfirm}
             >
-              Confirm
+              Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

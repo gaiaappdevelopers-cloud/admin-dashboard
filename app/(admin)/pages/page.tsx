@@ -67,22 +67,22 @@ export default function PagesPage() {
 
   return (
     <>
-      <TopBar title="Pages" />
+      <TopBar title="Páginas" />
       <main className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {keys.length > 0 ? `${keys.length} page ${keys.length === 1 ? "key" : "keys"}` : ""}
+            {keys.length > 0 ? `${keys.length} página${keys.length === 1 ? "" : "s"}` : ""}
           </p>
           <Button size="sm" onClick={handleNewClick}>
             <Plus className="mr-1.5 h-4 w-4" />
-            New page
+            Nova página
           </Button>
         </div>
 
         {isError && (
           <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
             <AlertCircle className="h-4 w-4 shrink-0" />
-            Failed to load pages.
+            Falha ao carregar as páginas.
           </div>
         )}
 
@@ -97,10 +97,10 @@ export default function PagesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Page key</TableHead>
-                  <TableHead>Language</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Updated</TableHead>
+                  <TableHead>Chave da página</TableHead>
+                  <TableHead>Idioma</TableHead>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Atualizada</TableHead>
                   <TableHead className="w-20" />
                 </TableRow>
               </TableHeader>
@@ -168,17 +168,17 @@ export default function PagesPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Delete "{deleteTarget?.page_key}" ({deleteTarget?.language.toUpperCase()})?
+              Excluir &quot;{deleteTarget?.page_key}&quot; ({deleteTarget?.language.toUpperCase()})?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the{" "}
-              {deleteTarget?.language === "pt" ? "Portuguese" : "English"} variant of
-              this page. Other language variants are unaffected. This action cannot be
-              undone.
+              Isso vai remover permanentemente a variante em{" "}
+              {deleteTarget?.language === "pt" ? "Português" : "Inglês"} dessa página.
+              As outras variantes de idioma não são afetadas. Essa ação não pode ser
+              desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
@@ -191,7 +191,7 @@ export default function PagesPage() {
                 }
               }}
             >
-              Delete
+              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

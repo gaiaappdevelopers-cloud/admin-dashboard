@@ -36,7 +36,7 @@ const SEPARATOR = "separator"
 export function RichTextEditor({
   value,
   onChange,
-  placeholder = "Start writing…",
+  placeholder = "Comece a escrever…",
   className,
 }: RichTextEditorProps) {
   const editor = useEditor({
@@ -57,20 +57,20 @@ export function RichTextEditor({
   if (!editor) return null
 
   const tools = [
-    { icon: Heading1, action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), active: editor.isActive("heading", { level: 1 }), title: "Heading 1" },
-    { icon: Heading2, action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive("heading", { level: 2 }), title: "Heading 2" },
-    { icon: Heading3, action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(), active: editor.isActive("heading", { level: 3 }), title: "Heading 3" },
+    { icon: Heading1, action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), active: editor.isActive("heading", { level: 1 }), title: "Título 1" },
+    { icon: Heading2, action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive("heading", { level: 2 }), title: "Título 2" },
+    { icon: Heading3, action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(), active: editor.isActive("heading", { level: 3 }), title: "Título 3" },
     SEPARATOR,
-    { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive("bold"), title: "Bold" },
-    { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive("italic"), title: "Italic" },
-    { icon: UnderlineIcon, action: () => editor.chain().focus().toggleUnderline().run(), active: editor.isActive("underline"), title: "Underline" },
-    { icon: Strikethrough, action: () => editor.chain().focus().toggleStrike().run(), active: editor.isActive("strike"), title: "Strikethrough" },
-    { icon: Code, action: () => editor.chain().focus().toggleCode().run(), active: editor.isActive("code"), title: "Inline code" },
+    { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive("bold"), title: "Negrito" },
+    { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive("italic"), title: "Itálico" },
+    { icon: UnderlineIcon, action: () => editor.chain().focus().toggleUnderline().run(), active: editor.isActive("underline"), title: "Sublinhado" },
+    { icon: Strikethrough, action: () => editor.chain().focus().toggleStrike().run(), active: editor.isActive("strike"), title: "Tachado" },
+    { icon: Code, action: () => editor.chain().focus().toggleCode().run(), active: editor.isActive("code"), title: "Código" },
     SEPARATOR,
-    { icon: List, action: () => editor.chain().focus().toggleBulletList().run(), active: editor.isActive("bulletList"), title: "Bullet list" },
-    { icon: ListOrdered, action: () => editor.chain().focus().toggleOrderedList().run(), active: editor.isActive("orderedList"), title: "Ordered list" },
-    { icon: Quote, action: () => editor.chain().focus().toggleBlockquote().run(), active: editor.isActive("blockquote"), title: "Blockquote" },
-    { icon: Minus, action: () => editor.chain().focus().setHorizontalRule().run(), active: false, title: "Divider" },
+    { icon: List, action: () => editor.chain().focus().toggleBulletList().run(), active: editor.isActive("bulletList"), title: "Lista com marcadores" },
+    { icon: ListOrdered, action: () => editor.chain().focus().toggleOrderedList().run(), active: editor.isActive("orderedList"), title: "Lista numerada" },
+    { icon: Quote, action: () => editor.chain().focus().toggleBlockquote().run(), active: editor.isActive("blockquote"), title: "Citação" },
+    { icon: Minus, action: () => editor.chain().focus().setHorizontalRule().run(), active: false, title: "Divisor" },
   ] as const
 
   return (
@@ -101,7 +101,7 @@ export function RichTextEditor({
             className="h-7 w-7"
             onClick={() => editor.chain().focus().undo().run()}
             disabled={!editor.can().undo()}
-            title="Undo"
+            title="Desfazer"
           >
             <Undo className="h-3.5 w-3.5" />
           </Button>
@@ -112,7 +112,7 @@ export function RichTextEditor({
             className="h-7 w-7"
             onClick={() => editor.chain().focus().redo().run()}
             disabled={!editor.can().redo()}
-            title="Redo"
+            title="Refazer"
           >
             <Redo className="h-3.5 w-3.5" />
           </Button>

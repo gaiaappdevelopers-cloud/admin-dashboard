@@ -28,33 +28,33 @@ import {
 } from "@/components/ui/chart"
 
 const contentCards = [
-  { title: "Active Experience Types", value: "4", icon: Sparkles, description: "Live in the mobile app" },
-  { title: "Published Schemas", value: "4", icon: Layers, description: "Active form definitions" },
-  { title: "Live Pages", value: "6", icon: FileText, description: "Content pages in the app" },
-  { title: "Blog Posts", value: "3 published · 2 drafts", icon: BookOpen, description: "Published content" },
+  { title: "Tipos de Experiência ativos", value: "4", icon: Sparkles, description: "Disponíveis no app mobile" },
+  { title: "Formulários publicados", value: "4", icon: Layers, description: "Definições de formulário ativas" },
+  { title: "Páginas publicadas", value: "6", icon: FileText, description: "Páginas de conteúdo no app" },
+  { title: "Posts do blog", value: "3 publicados · 2 rascunhos", icon: BookOpen, description: "Conteúdo publicado" },
 ]
 
 const FUNNEL_DATA = [
-  { stage: "Users", value: 1247, rate: null },
-  { stage: "Experiences", value: 842, rate: "67.5%" },
-  { stage: "PAIs created", value: 156, rate: "18.5%" },
+  { stage: "Usuários", value: 1247, rate: null },
+  { stage: "Experiências", value: 842, rate: "67.5%" },
+  { stage: "PAIs criados", value: 156, rate: "18.5%" },
   { stage: "Leads", value: 43, rate: "27.6%" },
 ]
 
 const FUNNEL_CONFIG = {
-  value: { label: "Count", color: "hsl(var(--chart-1))" },
+  value: { label: "Quantidade", color: "hsl(var(--chart-1))" },
 } satisfies ChartConfig
 
 const STATUS_DATA = [
-  { status: "new", label: "New", value: 18 },
-  { status: "assigned", label: "Assigned", value: 15 },
-  { status: "contacted", label: "Contacted", value: 10 },
+  { status: "new", label: "Novo", value: 18 },
+  { status: "assigned", label: "Atribuído", value: 15 },
+  { status: "contacted", label: "Contatado", value: 10 },
 ]
 
 const STATUS_CONFIG = {
-  new: { label: "New", color: "hsl(var(--chart-1))" },
-  assigned: { label: "Assigned", color: "hsl(var(--chart-2))" },
-  contacted: { label: "Contacted", color: "hsl(var(--chart-3))" },
+  new: { label: "Novo", color: "hsl(var(--chart-1))" },
+  assigned: { label: "Atribuído", color: "hsl(var(--chart-2))" },
+  contacted: { label: "Contatado", color: "hsl(var(--chart-3))" },
 } satisfies ChartConfig
 
 function StatCard({
@@ -116,11 +116,11 @@ export default function DashboardPage() {
 
   return (
     <>
-      <TopBar title="Dashboard" />
+      <TopBar title="Painel" />
       <main className="p-6 space-y-6">
         <section>
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Content
+            Conteúdo
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {contentCards.map((card) => (
@@ -131,13 +131,13 @@ export default function DashboardPage() {
 
         <section>
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Activity
+            Atividade
           </h2>
 
           {isError ? (
             <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
               <AlertCircle className="h-4 w-4 shrink-0" />
-              Failed to load activity stats. The backend may be unavailable.
+              Falha ao carregar as métricas de atividade. O backend pode estar indisponível.
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -150,23 +150,23 @@ export default function DashboardPage() {
               ) : (
                 <>
                   <StatCard
-                    title="Registered Users"
+                    title="Usuários cadastrados"
                     value={stats!.total_users.toLocaleString()}
                     icon={Users}
-                    description="Total accounts created"
+                    description="Total de contas criadas"
                   />
                   <StatCard
-                    title="Experiences This Week"
+                    title="Experiências esta semana"
                     value={stats!.experiences_this_week.toLocaleString()}
                     icon={Activity}
-                    description="Diary entries logged"
+                    description="Entradas de diário registradas"
                   />
                   <StatCard
-                    title="Research Consents"
+                    title="Consentimentos de pesquisa"
                     value={stats!.research_consents_count.toLocaleString()}
                     icon={HeartHandshake}
-                    description="Users opted into research"
-                    note="Research consent collection is not yet active. This will update once the feature launches."
+                    description="Usuários que aceitaram participar da pesquisa"
+                    note="A coleta de consentimento de pesquisa ainda não está ativa. Este número será atualizado quando a funcionalidade for lançada."
                   />
                 </>
               )}
@@ -180,7 +180,7 @@ export default function DashboardPage() {
               Leads
             </h2>
             <Badge variant="outline" className="text-xs font-normal rounded-sm">
-              Coming soon · mock data
+              Em breve · dados de exemplo
             </Badge>
           </div>
 
@@ -189,13 +189,13 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Leads
+                  Total de Leads
                 </CardTitle>
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">43</p>
-                <p className="mt-1 text-xs text-muted-foreground">Users who requested professional support</p>
+                <p className="mt-1 text-xs text-muted-foreground">Usuários que pediram contato com um profissional</p>
               </CardContent>
             </Card>
 
@@ -203,7 +203,7 @@ export default function DashboardPage() {
             <Card className="lg:col-span-2">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Conversion Funnel
+                  Funil de Conversão
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
@@ -250,7 +250,7 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  By Status
+                  Por Status
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col items-center pt-0">

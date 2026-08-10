@@ -26,18 +26,18 @@ import {
 
 const contentNav = [
   { title: "Blog", href: "/blog-posts", icon: BookOpen },
-  { title: "Pages", href: "/pages", icon: FileText },
+  { title: "Páginas", href: "/pages", icon: FileText },
 ]
 
 const configNav = [
-  { title: "Experience Types", href: "/experience-types", icon: Sparkles },
-  { title: "Schemas", href: "/schemas", icon: Layers },
+  { title: "Tipos de Experiência", href: "/experience-types", icon: Sparkles },
+  { title: "Formulários", href: "/schemas", icon: Layers },
 ]
 
 const platformNav = [
   { title: "Leads", href: "/leads", icon: TrendingUp },
-  { title: "Professionals", href: "/professionals", icon: Stethoscope },
-  { title: "Establishments", href: "/establishments", icon: Building2 },
+  { title: "Profissionais", href: "/professionals", icon: Stethoscope },
+  { title: "Estabelecimentos", href: "/establishments", icon: Building2 },
 ]
 
 export function AppSidebar() {
@@ -69,7 +69,7 @@ export function AppSidebar() {
               <SidebarMenuButton asChild isActive={pathname === "/dashboard"}>
                 <Link href="/dashboard">
                   <LayoutDashboard />
-                  <span>Dashboard</span>
+                  <span>Painel</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -77,7 +77,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Content</SidebarGroupLabel>
+          <SidebarGroupLabel>Conteúdo</SidebarGroupLabel>
           <SidebarMenu>
             {contentNav.map((item) => (
               <SidebarMenuItem key={item.href}>
@@ -93,7 +93,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Configuration</SidebarGroupLabel>
+          <SidebarGroupLabel>Configuração</SidebarGroupLabel>
           <SidebarMenu>
             {configNav.map((item) => (
               <SidebarMenuItem key={item.href}>
@@ -109,7 +109,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
           <SidebarMenu>
             {platformNav.map((item) => (
               <SidebarMenuItem key={item.href}>

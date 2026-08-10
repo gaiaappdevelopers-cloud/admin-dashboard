@@ -33,9 +33,9 @@ import {
 type Tab = "ALL" | BlogPostStatus
 
 const TABS: { value: Tab; label: string }[] = [
-  { value: "ALL", label: "All" },
-  { value: "PUBLISHED", label: "Published" },
-  { value: "DRAFT", label: "Draft" },
+  { value: "ALL", label: "Todos" },
+  { value: "PUBLISHED", label: "Publicados" },
+  { value: "DRAFT", label: "Rascunhos" },
 ]
 
 export default function BlogPostsPage() {
@@ -65,7 +65,7 @@ export default function BlogPostsPage() {
           <Button size="sm" asChild>
             <Link href="/blog-posts/new">
               <Plus className="mr-1.5 h-4 w-4" />
-              New post
+              Novo post
             </Link>
           </Button>
         </div>
@@ -73,7 +73,7 @@ export default function BlogPostsPage() {
         {isError && (
           <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
             <AlertCircle className="h-4 w-4 shrink-0" />
-            Failed to load posts.
+            Falha ao carregar os posts.
           </div>
         )}
 
@@ -88,11 +88,11 @@ export default function BlogPostsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Language</TableHead>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Idioma</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Published</TableHead>
-                  <TableHead>Updated</TableHead>
+                  <TableHead>Publicado</TableHead>
+                  <TableHead>Atualizado</TableHead>
                   <TableHead className="w-32" />
                 </TableRow>
               </TableHeader>
@@ -100,7 +100,7 @@ export default function BlogPostsPage() {
                 {(data ?? []).length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
-                      No posts found.
+                      Nenhum post encontrado.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -121,7 +121,7 @@ export default function BlogPostsPage() {
                               : ""
                           }
                         >
-                          {post.status === "PUBLISHED" ? "Published" : "Draft"}
+                          {post.status === "PUBLISHED" ? "Publicado" : "Rascunho"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
@@ -145,7 +145,7 @@ export default function BlogPostsPage() {
                                 : unpublish.mutate(post.id)
                             }
                           >
-                            {post.status === "DRAFT" ? "Publish" : "Unpublish"}
+                            {post.status === "DRAFT" ? "Publicar" : "Despublicar"}
                           </Button>
                           <Button
                             variant="ghost"
@@ -182,13 +182,13 @@ export default function BlogPostsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete "{deleteTarget?.title}"?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir &quot;{deleteTarget?.title}&quot;?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the post. This action cannot be undone.
+              Isso vai remover o post permanentemente. Essa ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
@@ -198,7 +198,7 @@ export default function BlogPostsPage() {
                 }
               }}
             >
-              Delete
+              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
