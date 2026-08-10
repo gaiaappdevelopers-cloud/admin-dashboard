@@ -8,19 +8,35 @@ const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 export async function POST(req: NextRequest) {
   const body = await req.json()
 
-  const backendRes = await fetch(`${BACKEND_URL}/v1/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  })
-
-  const json = await backendRes.json()
-
-  if (!backendRes.ok) {
-    return NextResponse.json(json, { status: backendRes.status })
+  let backendRes: Response
+  try {
+    backendRes = await fetch(`${BACKEND_URL}/v1/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+  } catch {
+    return NextResponse.json(
+      { error: { code: "BACKEND_UNREACHABLE", message: `Não foi possível conectar em ${BACKEND_URL}. Confira a variável NEXT_PUBLIC_API_URL.` } },
+      { status: 502 }
+    )
   }
 
-  const { access_token, refresh_token } = json.data
+  let json: unknown
+  try {
+    json = await backendRes.json()
+  } catch {
+    return NextResponse.json(
+      { error: { code: "BACKEND_INVALID_RESPONSE", message: `O backend respondeu algo que não é JSON (status ${backendRes.status}).` } },
+      { status: 502 }
+    )
+  }
+
+  if (!backendRes.ok) {
+    return NextResponse.json(json as Record<string, unknown>, { status: backendRes.status })
+  }
+
+  const { access_token, refresh_token } = (json as { data: { access_token: string; refresh_token: string } }).data
 
   const res = NextResponse.json({ ok: true })
 
