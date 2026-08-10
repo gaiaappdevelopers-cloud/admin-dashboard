@@ -9,6 +9,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Pencil,
+  Eye,
   Moon,
   Sparkles,
   Brain,
@@ -42,6 +43,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { NewVersionDialog } from "./_components/new-version-dialog"
+import { SchemaPreviewDialog } from "./_components/schema-preview-dialog"
 
 type ConfirmAction =
   | { type: "publish"; version: SchemaVersion }
@@ -109,6 +111,7 @@ export default function SchemasPage() {
   const [editVersion, setEditVersion] = useState<{ schemaKey: string; version: number } | null>(
     null
   )
+  const [previewVersion, setPreviewVersion] = useState<SchemaVersion | null>(null)
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
 
   const grouped = groupByKey(data ?? [])
@@ -250,6 +253,15 @@ export default function SchemasPage() {
                             </div>
 
                             <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={() => setPreviewVersion(v)}
+                              >
+                                <Eye className="mr-1 h-3 w-3" />
+                                Visualizar
+                              </Button>
                               {!v.is_active && !v.published_at && (
                                 <Button
                                   variant="ghost"
@@ -318,6 +330,16 @@ export default function SchemasPage() {
         onOpenChange={(open) => !open && setEditVersion(null)}
         editVersion={editVersion ?? undefined}
       />
+
+      {previewVersion && (
+        <SchemaPreviewDialog
+          open={!!previewVersion}
+          onOpenChange={(open) => !open && setPreviewVersion(null)}
+          schemaKey={previewVersion.schema_key}
+          version={previewVersion.schema_version}
+          isPublished={previewVersion.is_active}
+        />
+      )}
 
       <AlertDialog
         open={!!confirmAction}

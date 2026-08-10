@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Upload, Trash2, Pencil, AlertCircle, CheckCircle2, Info } from "lucide-react"
+import { Plus, Upload, Trash2, Pencil, Eye, AlertCircle, CheckCircle2, Info } from "lucide-react"
 
 import type { SchemaVersion } from "@/lib/api/schemas"
 import { PAI_PLAN_SCHEMA_KEY } from "@/lib/schema-model"
@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { NewVersionDialog } from "../schemas/_components/new-version-dialog"
+import { SchemaPreviewDialog } from "../schemas/_components/schema-preview-dialog"
 
 type ConfirmAction =
   | { type: "publish"; version: SchemaVersion }
@@ -36,6 +37,7 @@ export default function PaiPage() {
     null
   )
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
+  const [previewVersion, setPreviewVersion] = useState<SchemaVersion | null>(null)
 
   const versions = (data ?? [])
     .filter((v) => v.schema_key === PAI_PLAN_SCHEMA_KEY)
@@ -130,6 +132,15 @@ export default function PaiPage() {
                 </div>
 
                 <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => setPreviewVersion(v)}
+                  >
+                    <Eye className="mr-1 h-3 w-3" />
+                    Visualizar
+                  </Button>
                   {!v.is_active && !v.published_at && (
                     <Button
                       variant="ghost"
@@ -186,6 +197,16 @@ export default function PaiPage() {
         editVersion={editVersion ?? undefined}
         fixedSchemaKey={PAI_PLAN_SCHEMA_KEY}
       />
+
+      {previewVersion && (
+        <SchemaPreviewDialog
+          open={!!previewVersion}
+          onOpenChange={(open) => !open && setPreviewVersion(null)}
+          schemaKey={previewVersion.schema_key}
+          version={previewVersion.schema_version}
+          isPublished={previewVersion.is_active}
+        />
+      )}
 
       <AlertDialog
         open={!!confirmAction}
