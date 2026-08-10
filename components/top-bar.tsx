@@ -1,8 +1,11 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Moon, Sun, PanelLeft } from "lucide-react"
 import { useTheme } from "next-themes"
 
+import { authApi } from "@/lib/api/auth"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -21,6 +24,19 @@ interface TopBarProps {
 
 export function TopBar({ title }: TopBarProps) {
   const { theme, setTheme } = useTheme()
+  const router = useRouter()
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    if (loggingOut) return
+    setLoggingOut(true)
+    try {
+      await authApi.logout()
+    } finally {
+      router.push("/login")
+      router.refresh()
+    }
+  }
 
   return (
     <header className="flex h-14 items-center gap-1 border-b bg-background px-4">
@@ -58,8 +74,12 @@ export function TopBar({ title }: TopBarProps) {
             <p className="text-muted-foreground text-xs font-normal">admin@gaia.app</p>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-destructive focus:text-destructive">
-            Sair
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive"
+            disabled={loggingOut}
+            onClick={handleLogout}
+          >
+            {loggingOut ? "Saindo…" : "Sair"}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
