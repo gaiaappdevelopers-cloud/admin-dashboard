@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, Plus, Upload, Trash2, AlertCircle, CheckCircle2 } from "lucide-react"
+import { ChevronDown, Plus, Upload, Trash2, AlertCircle, CheckCircle2, Pencil } from "lucide-react"
 
 import type { SchemaVersion } from "@/lib/api/schemas"
 import { useSchemas, usePublishSchema, useDeleteSchema } from "@/hooks/use-schemas"
@@ -45,6 +45,9 @@ export default function SchemasPage() {
 
   const [newDialogOpen, setNewDialogOpen] = useState(false)
   const [newDialogKey, setNewDialogKey] = useState("")
+  const [editVersion, setEditVersion] = useState<{ schemaKey: string; version: number } | null>(
+    null
+  )
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
 
   const grouped = groupByKey(data ?? [])
@@ -73,11 +76,11 @@ export default function SchemasPage() {
 
   return (
     <>
-      <TopBar title="Schemas" />
+      <TopBar title="Formulários" />
       <main className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {keys.length > 0 ? `${keys.length} schema ${keys.length === 1 ? "key" : "keys"}` : ""}
+            {keys.length > 0 ? `${keys.length} formulário${keys.length === 1 ? "" : "s"}` : ""}
           </p>
           <Button
             size="sm"
@@ -87,14 +90,14 @@ export default function SchemasPage() {
             }}
           >
             <Plus className="mr-1.5 h-4 w-4" />
-            New version
+            Nova versão
           </Button>
         </div>
 
         {isError && (
           <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
             <AlertCircle className="h-4 w-4 shrink-0" />
-            Failed to load schemas.
+            Falha ao carregar os formulários.
           </div>
         )}
 
@@ -119,11 +122,11 @@ export default function SchemasPage() {
                         {publishedVersion && (
                           <Badge variant="secondary" className="gap-1 text-xs">
                             <CheckCircle2 className="h-3 w-3 text-green-600" />
-                            v{publishedVersion.schema_version} published
+                            v{publishedVersion.schema_version} publicada
                           </Badge>
                         )}
                         <span className="text-xs text-muted-foreground">
-                          {versions.length} version{versions.length !== 1 ? "s" : ""}
+                          {versions.length} {versions.length === 1 ? "versão" : "versões"}
                         </span>
                         <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform [[data-state=open]_&]:rotate-180" />
                       </CollapsibleTrigger>
@@ -134,7 +137,7 @@ export default function SchemasPage() {
                         onClick={() => openNewForKey(key)}
                       >
                         <Plus className="mr-1 h-3 w-3" />
-                        Add version
+                        Nova versão
                       </Button>
                     </div>
 
@@ -152,11 +155,11 @@ export default function SchemasPage() {
                               {v.is_active ? (
                                 <Badge className="gap-1 bg-green-600/10 text-green-700 hover:bg-green-600/10 dark:text-green-400">
                                   <CheckCircle2 className="h-3 w-3" />
-                                  Published
+                                  Publicada
                                 </Badge>
                               ) : (
                                 <Badge variant="outline" className="text-xs">
-                                  Draft
+                                  Rascunho
                                 </Badge>
                               )}
                               <span className="text-xs text-muted-foreground">
@@ -165,6 +168,22 @@ export default function SchemasPage() {
                             </div>
 
                             <div className="flex items-center gap-1">
+                              {!v.is_active && !v.published_at && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 text-xs"
+                                  onClick={() =>
+                                    setEditVersion({
+                                      schemaKey: v.schema_key,
+                                      version: v.schema_version,
+                                    })
+                                  }
+                                >
+                                  <Pencil className="mr-1 h-3 w-3" />
+                                  Editar
+                                </Button>
+                              )}
                               {!v.is_active && (
                                 <>
                                   <Button
@@ -176,7 +195,7 @@ export default function SchemasPage() {
                                     }
                                   >
                                     <Upload className="mr-1 h-3 w-3" />
-                                    Publish
+                                    Publicar
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -187,7 +206,7 @@ export default function SchemasPage() {
                                     }
                                   >
                                     <Trash2 className="mr-1 h-3 w-3" />
-                                    Delete
+                                    Excluir
                                   </Button>
                                 </>
                               )}
@@ -205,10 +224,17 @@ export default function SchemasPage() {
       </main>
 
       <NewVersionDialog
-        key={`${newDialogOpen}-${newDialogKey}`}
+        key={`new-${newDialogOpen}-${newDialogKey}`}
         open={newDialogOpen}
         onOpenChange={setNewDialogOpen}
         defaultSchemaKey={newDialogKey}
+      />
+
+      <NewVersionDialog
+        key={`edit-${editVersion?.schemaKey}-${editVersion?.version}`}
+        open={!!editVersion}
+        onOpenChange={(open) => !open && setEditVersion(null)}
+        editVersion={editVersion ?? undefined}
       />
 
       <AlertDialog
@@ -219,17 +245,17 @@ export default function SchemasPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {confirmAction?.type === "publish"
-                ? `Publish v${confirmAction.version.schema_version}?`
-                : `Delete v${confirmAction?.version.schema_version}?`}
+                ? `Publicar v${confirmAction.version.schema_version}?`
+                : `Excluir v${confirmAction?.version.schema_version}?`}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmAction?.type === "publish"
-                ? `This will make v${confirmAction.version.schema_version} of "${confirmAction.version.schema_key}" the active schema. The mobile app will use this version for all new Experiences.`
-                : `This will permanently delete v${confirmAction?.version.schema_version} of "${confirmAction?.version.schema_key}". This action cannot be undone.`}
+                ? `Isso vai tornar a v${confirmAction.version.schema_version} de "${confirmAction.version.schema_key}" a versão ativa. O app mobile vai usar essa versão em todas as novas Experiências.`
+                : `Isso vai excluir permanentemente a v${confirmAction?.version.schema_version} de "${confirmAction?.version.schema_key}". Essa ação não pode ser desfeita.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className={
                 confirmAction?.type === "delete"
@@ -238,7 +264,7 @@ export default function SchemasPage() {
               }
               onClick={handleConfirm}
             >
-              {confirmAction?.type === "publish" ? "Publish" : "Delete"}
+              {confirmAction?.type === "publish" ? "Publicar" : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

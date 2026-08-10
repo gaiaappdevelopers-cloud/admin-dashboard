@@ -11,8 +11,16 @@ export interface SchemaVersion {
   updated_at: string
 }
 
+export interface SchemaVersionDetail extends SchemaVersion {
+  sections: unknown[]
+}
+
 export interface CreateSchemaPayload {
   schema_key: string
+  sections: unknown[]
+}
+
+export interface UpdateSchemaPayload {
   sections: unknown[]
 }
 
@@ -23,9 +31,18 @@ export const schemasApi = {
   listByKey: (schemaKey: string) =>
     apiFetch<SchemaVersion[]>(`/v1/admin/schemas/${schemaKey}`),
 
+  getVersion: (schemaKey: string, version: number) =>
+    apiFetch<SchemaVersionDetail>(`/v1/admin/schemas/${schemaKey}/${version}`),
+
   create: (payload: CreateSchemaPayload) =>
     apiFetch<SchemaVersion>("/v1/admin/schemas", {
       method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  updateVersion: (schemaKey: string, version: number, payload: UpdateSchemaPayload) =>
+    apiFetch<SchemaVersionDetail>(`/v1/admin/schemas/${schemaKey}/${version}`, {
+      method: "PUT",
       body: JSON.stringify(payload),
     }),
 
