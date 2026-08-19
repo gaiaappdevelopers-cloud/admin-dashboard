@@ -3,19 +3,23 @@
 import { Info, Link as LinkIcon, CornerDownRight } from "lucide-react"
 
 import { useSchemaVersion } from "@/hooks/use-schemas"
+import { useExperienceTypes } from "@/hooks/use-experience-types"
 import {
   FIELD_TYPE_OPTIONS,
   type DynamicFormField,
   type DynamicFormSection,
 } from "@/lib/schema-model"
+import { resolvePreviewLayout } from "@/lib/schema-preview"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { MobileFormPreview } from "./mobile-form-preview"
 
 interface SchemaPreviewDialogProps {
   open: boolean
@@ -33,6 +37,8 @@ export function SchemaPreviewDialog({
   isPublished,
 }: SchemaPreviewDialogProps) {
   const { data, isLoading, isError } = useSchemaVersion(schemaKey, version, open)
+  const { data: experienceTypes } = useExperienceTypes()
+  const layout = resolvePreviewLayout(schemaKey, experienceTypes)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,11 +69,22 @@ export function SchemaPreviewDialog({
             Essa versão ainda não tem nenhuma seção.
           </p>
         ) : (
-          <div className="space-y-4">
-            {(data.sections as DynamicFormSection[]).map((section, i) => (
-              <PreviewSection key={section.section_key || i} section={section} />
-            ))}
-          </div>
+          <Tabs defaultValue="visual">
+            <TabsList>
+              <TabsTrigger value="visual">Visual</TabsTrigger>
+              <TabsTrigger value="details">Detalhes</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="visual" className="mt-3">
+              <MobileFormPreview sections={data.sections as DynamicFormSection[]} layout={layout} />
+            </TabsContent>
+
+            <TabsContent value="details" className="mt-3 space-y-4">
+              {(data.sections as DynamicFormSection[]).map((section, i) => (
+                <PreviewSection key={section.section_key || i} section={section} />
+              ))}
+            </TabsContent>
+          </Tabs>
         )}
       </DialogContent>
     </Dialog>
