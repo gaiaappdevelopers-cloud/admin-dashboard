@@ -2,30 +2,37 @@
 
 import { useState } from "react"
 import {
-  ChevronLeft,
-  ChevronRight,
+  X,
+  ArrowLeft,
+  ArrowRight,
   ChevronDown,
   Calendar,
   Info,
+  Lightbulb,
+  Sparkles,
   Smartphone,
 } from "lucide-react"
 
-import type { DynamicFormField, DynamicFormSection } from "@/lib/schema-model"
+import type { DynamicFormField, DynamicFormSection, DynamicFormSectionInfoBox } from "@/lib/schema-model"
 import type { PreviewLayout } from "@/lib/schema-preview"
 import { cn } from "@/lib/utils"
 
-// A handful of tokens lifted from color_tokens.json (light palette) — this
-// mock always renders in the mobile app's real light colors, independent of
-// the admin panel's own theme, since the point is to preview the app, not
-// re-theme the admin.
+// Tokens sampled from real mobile-app screenshots (gaia-admin/public/mobile_screenshots) —
+// the app is dark-themed with a serif display font and violet accents. This mock always
+// renders in these colors, independent of the admin panel's own theme, since the point is
+// to preview the app, not re-theme the admin.
 const TOKENS = {
-  screenBg: "#E8E4D8",
-  cardBg: "#f5f3f0",
-  border: "#d6cec2",
-  text: "#2C2C3A",
-  mutedText: "#6e6e91",
+  screenBg: "#15121e",
+  cardBg: "#1d1929",
+  cardBorder: "#332c47",
+  inputBg: "#110f1a",
+  inputBorder: "#3a3350",
+  text: "#f1eef7",
+  mutedText: "#948dab",
+  label: "#c9a3e8",
   primary: "#8752AD",
-  primarySoft: "#f3eef7",
+  primarySoft: "rgba(135, 82, 173, 0.18)",
+  progressTrack: "#332c47",
 }
 
 interface MobileFormPreviewProps {
@@ -38,17 +45,17 @@ interface MobileFormPreviewProps {
  * mobile app — not pixel-accurate to Flutter (we don't have that source
  * here), just accurate about which section a field lands in, what kind of
  * control it becomes, and the page/accordion structure confirmed by the
- * mobile dev. See gaia-admin/docs/adr for the reasoning.
+ * mobile dev's screenshots. See gaia-admin/docs/adr for the reasoning.
  */
 export function MobileFormPreview({ sections, layout }: MobileFormPreviewProps) {
   return (
     <div className="mx-auto w-full max-w-[300px]">
       <div
         className="overflow-hidden rounded-[2rem] border-4 shadow-sm"
-        style={{ borderColor: TOKENS.text, backgroundColor: TOKENS.screenBg }}
+        style={{ borderColor: "#0a0910", backgroundColor: TOKENS.screenBg }}
       >
         <div className="flex justify-center py-2">
-          <div className="h-1.5 w-16 rounded-full" style={{ backgroundColor: TOKENS.border }} />
+          <div className="h-1.5 w-16 rounded-full" style={{ backgroundColor: TOKENS.progressTrack }} />
         </div>
 
         <div className="h-[520px] overflow-y-auto px-4 pb-6">
@@ -85,36 +92,57 @@ function PaginatedPreview({ sections }: { sections: DynamicFormSection[] }) {
   const [index, setIndex] = useState(0)
   const clampedIndex = Math.min(index, sections.length - 1)
   const section = sections[clampedIndex]
+  const isFirst = clampedIndex === 0
+  const isLast = clampedIndex === sections.length - 1
 
   return (
-    <div className="space-y-3 pt-2">
+    <div className="flex h-full flex-col pt-2">
       <div className="flex items-center justify-between">
+        <X className="h-4 w-4" style={{ color: TOKENS.text }} />
+        <span
+          className="text-[9px] font-medium tracking-wider"
+          style={{ color: TOKENS.mutedText }}
+        >
+          PASSO {clampedIndex + 1} DE {sections.length}
+        </span>
+      </div>
+
+      <div className="mt-2 flex gap-1">
+        {sections.map((s, i) => (
+          <div
+            key={s.section_key || i}
+            className="h-1 flex-1 rounded-full"
+            style={{ backgroundColor: i <= clampedIndex ? TOKENS.primary : TOKENS.progressTrack }}
+          />
+        ))}
+      </div>
+
+      <div className="flex-1 pt-3">
+        <SectionBody section={section} headingClassName="font-serif text-base" />
+      </div>
+
+      <div className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: TOKENS.cardBorder }}>
         <button
           type="button"
           onClick={() => setIndex(Math.max(0, clampedIndex - 1))}
-          disabled={clampedIndex === 0}
-          className="rounded-full p-1 disabled:opacity-30"
-          style={{ color: TOKENS.primary }}
-          aria-label="Seção anterior"
+          disabled={isFirst}
+          className="flex items-center gap-1.5 text-[10px] font-medium tracking-wider disabled:opacity-30"
+          style={{ color: TOKENS.text }}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3 w-3" />
+          VOLTAR
         </button>
-        <span className="text-[11px]" style={{ color: TOKENS.mutedText }}>
-          Seção {clampedIndex + 1} de {sections.length}
-        </span>
         <button
           type="button"
           onClick={() => setIndex(Math.min(sections.length - 1, clampedIndex + 1))}
-          disabled={clampedIndex === sections.length - 1}
-          className="rounded-full p-1 disabled:opacity-30"
-          style={{ color: TOKENS.primary }}
-          aria-label="Próxima seção"
+          disabled={isLast}
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-medium tracking-wider disabled:opacity-50"
+          style={{ backgroundColor: TOKENS.primary, color: TOKENS.text }}
         >
-          <ChevronRight className="h-4 w-4" />
+          PRÓXIMO
+          <ArrowRight className="h-3 w-3" />
         </button>
       </div>
-
-      <SectionBody section={section} />
     </div>
   )
 }
@@ -134,31 +162,38 @@ function AccordionStackPreview({ sections }: { sections: DynamicFormSection[] })
   }
 
   return (
-    <div className="space-y-2 pt-2">
+    <div className="space-y-2.5 pt-2">
       {sections.map((section, i) => {
         const key = section.section_key || `section-${i}`
         const isOpen = openKeys.has(key)
         return (
           <div
             key={key}
-            className="overflow-hidden rounded-lg border"
-            style={{ borderColor: TOKENS.border, backgroundColor: TOKENS.cardBg }}
+            className="overflow-hidden rounded-xl border"
+            style={{ borderColor: TOKENS.cardBorder, backgroundColor: TOKENS.cardBg }}
           >
             <button
               type="button"
               onClick={() => toggle(key)}
-              className="flex w-full items-center justify-between px-3 py-2 text-left"
+              className="flex w-full items-start justify-between gap-2 px-3 py-3 text-left"
             >
-              <span className="text-xs font-medium" style={{ color: TOKENS.text }}>
-                {section.section_title || "Seção sem título"}
-              </span>
+              <div className="space-y-0.5">
+                <p className="font-serif text-sm" style={{ color: TOKENS.text }}>
+                  {section.section_title || "Seção sem título"}
+                </p>
+                {section.section_description && (
+                  <p className="text-[10px]" style={{ color: TOKENS.mutedText }}>
+                    {section.section_description}
+                  </p>
+                )}
+              </div>
               <ChevronDown
-                className={cn("h-3.5 w-3.5 transition-transform", isOpen && "rotate-180")}
-                style={{ color: TOKENS.mutedText }}
+                className={cn("mt-0.5 h-3.5 w-3.5 shrink-0 transition-transform", isOpen && "rotate-180")}
+                style={{ color: TOKENS.label }}
               />
             </button>
             {isOpen && (
-              <div className="border-t px-3 pb-3 pt-2" style={{ borderColor: TOKENS.border }}>
+              <div className="border-t px-3 pb-3 pt-3" style={{ borderColor: TOKENS.cardBorder }}>
                 <SectionBody section={section} showTitle={false} />
               </div>
             )}
@@ -172,19 +207,21 @@ function AccordionStackPreview({ sections }: { sections: DynamicFormSection[] })
 function SectionBody({
   section,
   showTitle = true,
+  headingClassName = "text-sm font-semibold",
 }: {
   section: DynamicFormSection
   showTitle?: boolean
+  headingClassName?: string
 }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {showTitle && (
-        <div>
-          <p className="text-sm font-semibold" style={{ color: TOKENS.text }}>
+        <div className="space-y-1">
+          <p className={headingClassName} style={{ color: TOKENS.text }}>
             {section.section_title || "Seção sem título"}
           </p>
           {section.section_description && (
-            <p className="mt-0.5 text-[11px]" style={{ color: TOKENS.mutedText }}>
+            <p className="text-[11px]" style={{ color: TOKENS.mutedText }}>
               {section.section_description}
             </p>
           )}
@@ -196,12 +233,39 @@ function SectionBody({
           Nenhum campo nesta seção ainda.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3.5">
           {section.fields.map((field, i) => (
             <FieldPreview key={field.field_key || i} field={field} />
           ))}
         </div>
       )}
+
+      {section.section_info_box && <InfoBox box={section.section_info_box} />}
+    </div>
+  )
+}
+
+function InfoBox({ box }: { box: DynamicFormSectionInfoBox }) {
+  const Icon = box.icon === "sparkles" ? Sparkles : box.icon === "info" ? Info : Lightbulb
+  return (
+    <div
+      className="flex items-start gap-2.5 rounded-lg border p-2.5"
+      style={{ borderColor: TOKENS.cardBorder }}
+    >
+      <div
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: TOKENS.primarySoft }}
+      >
+        <Icon className="h-3 w-3" style={{ color: TOKENS.label }} />
+      </div>
+      <div className="space-y-0.5">
+        <p className="text-[11px] font-medium" style={{ color: TOKENS.text }}>
+          {box.title}
+        </p>
+        <p className="text-[10px]" style={{ color: TOKENS.mutedText }}>
+          {box.description}
+        </p>
+      </div>
     </div>
   )
 }
@@ -210,11 +274,14 @@ function FieldPreview({ field }: { field: DynamicFormField }) {
   return (
     <div className="space-y-1">
       <div className="flex items-baseline gap-1">
-        <span className="text-xs font-medium" style={{ color: TOKENS.text }}>
-          {field.field_title || "Pergunta sem título"}
+        <span
+          className="text-[10px] font-medium tracking-wider"
+          style={{ color: TOKENS.label }}
+        >
+          {(field.field_title || "PERGUNTA SEM TÍTULO").toUpperCase()}
         </span>
         {field.is_field_mandatory && (
-          <span className="text-xs" style={{ color: TOKENS.primary }}>
+          <span className="text-[10px]" style={{ color: TOKENS.label }}>
             *
           </span>
         )}
@@ -231,32 +298,32 @@ function FieldPreview({ field }: { field: DynamicFormField }) {
 
 function FieldControlMock({ field }: { field: DynamicFormField }) {
   const boxStyle = {
-    borderColor: TOKENS.border,
-    backgroundColor: TOKENS.cardBg,
+    borderColor: TOKENS.inputBorder,
+    backgroundColor: TOKENS.inputBg,
     color: TOKENS.mutedText,
   }
 
   switch (field.field_type) {
     case "formatted_text":
       return (
-        <div className="rounded-md border px-2 py-3 text-[11px]" style={boxStyle}>
+        <div className="rounded-lg border px-2.5 py-3 text-[11px]" style={boxStyle}>
           Texto formatado…
         </div>
       )
 
     case "date":
       return (
-        <div className="flex items-center gap-1.5 rounded-md border px-2 py-1.5 text-[11px]" style={boxStyle}>
-          <Calendar className="h-3 w-3" />
-          Selecionar data
+        <div className="flex items-center justify-between rounded-lg border px-2.5 py-2 text-[11px]" style={boxStyle}>
+          Selecione uma data
+          <Calendar className="h-3 w-3" style={{ color: TOKENS.label }} />
         </div>
       )
 
     case "dropdown":
       return (
-        <div className="flex items-center justify-between rounded-md border px-2 py-1.5 text-[11px]" style={boxStyle}>
-          <span>Selecionar…</span>
-          <ChevronDown className="h-3 w-3" />
+        <div className="flex items-center justify-between rounded-lg border px-2.5 py-2 text-[11px]" style={boxStyle}>
+          <span>Selecione</span>
+          <ChevronDown className="h-3 w-3" style={{ color: TOKENS.label }} />
         </div>
       )
 
@@ -266,7 +333,7 @@ function FieldControlMock({ field }: { field: DynamicFormField }) {
           {["Sim", "Não"].map((label) => (
             <span
               key={label}
-              className="rounded-full border px-2.5 py-0.5 text-[10px]"
+              className="rounded-full border px-3 py-1 text-[10px]"
               style={boxStyle}
             >
               {label}
@@ -281,10 +348,10 @@ function FieldControlMock({ field }: { field: DynamicFormField }) {
           {(field.options.length > 0 ? field.options : ["Opção"]).map((option, i) => (
             <span
               key={`${option}-${i}`}
-              className="rounded-full border px-2.5 py-0.5 text-[10px]"
+              className="rounded-full border px-3 py-1 text-[10px]"
               style={
                 i === 0
-                  ? { borderColor: TOKENS.primary, backgroundColor: TOKENS.primarySoft, color: TOKENS.primary }
+                  ? { borderColor: TOKENS.primary, backgroundColor: TOKENS.primarySoft, color: TOKENS.text }
                   : boxStyle
               }
             >
@@ -296,12 +363,12 @@ function FieldControlMock({ field }: { field: DynamicFormField }) {
 
     case "checkbox":
       return (
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {(field.options.length > 0 ? field.options : ["Opção"]).map((option, i) => (
             <div key={`${option}-${i}`} className="flex items-center gap-1.5 text-[11px]" style={{ color: TOKENS.text }}>
               <span
                 className="h-3 w-3 shrink-0 rounded-sm border"
-                style={{ borderColor: TOKENS.border }}
+                style={{ borderColor: TOKENS.inputBorder }}
               />
               {option}
             </div>
@@ -312,8 +379,8 @@ function FieldControlMock({ field }: { field: DynamicFormField }) {
     case "text":
     default:
       return (
-        <div className="rounded-md border px-2 py-1.5 text-[11px]" style={boxStyle}>
-          {field.field_type === "text" ? "Resposta…" : field.field_type}
+        <div className="rounded-lg border px-2.5 py-2 text-[11px]" style={boxStyle}>
+          {field.field_type === "text" ? "" : field.field_type}
         </div>
       )
   }

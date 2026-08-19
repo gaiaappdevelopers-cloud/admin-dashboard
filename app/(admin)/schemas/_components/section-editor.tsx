@@ -146,7 +146,9 @@ export function SectionEditor({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Chave da seção</Label>
+                <LabelWithHint hint="Identifica essa seção internamente — é preenchida sozinha a partir do título, então normalmente você não precisa mexer aqui. Ela é o que liga essa seção às respostas já dadas pelos usuários: se você mudar a chave de uma versão já publicada, as respostas antigas dessa seção deixam de aparecer ligadas a ela. Pode renomear o título à vontade — só evite editar a chave depois de publicar.">
+                  Chave da seção
+                </LabelWithHint>
                 <Input
                   value={section.section_key}
                   onChange={(e) => patch({ section_key: e.target.value })}
