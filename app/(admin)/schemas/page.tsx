@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Pencil,
   Eye,
+  Copy,
   Moon,
   Sparkles,
   Brain,
@@ -20,7 +21,7 @@ import {
 
 import type { SchemaVersion } from "@/lib/api/schemas"
 import type { ExperienceType } from "@/lib/api/experience-types"
-import { PAI_PLAN_SCHEMA_KEY } from "@/lib/schema-model"
+import { PAI_PLAN_SCHEMA_KEY, REGISTRATION_SEEKER_SCHEMA_KEY } from "@/lib/schema-model"
 import { useSchemas, usePublishSchema, useDeleteSchema } from "@/hooks/use-schemas"
 import { useExperienceTypes } from "@/hooks/use-experience-types"
 import { TopBar } from "@/components/top-bar"
@@ -44,6 +45,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { NewVersionDialog } from "./_components/new-version-dialog"
 import { SchemaPreviewDialog } from "./_components/schema-preview-dialog"
+import { DuplicateVersionDialog } from "./_components/duplicate-version-dialog"
 
 type ConfirmAction =
   | { type: "publish"; version: SchemaVersion }
@@ -89,11 +91,13 @@ function resolveGroupMeta(key: string, experienceTypes: ExperienceType[] | undef
   return { title: humanizeKey(key), kind: "outro", icon: FileQuestion }
 }
 
+// Schema kinds with their own dedicated page — showing them here too would
+// be a confusing second place to manage the same form.
+const DEDICATED_PAGE_KEYS: string[] = [PAI_PLAN_SCHEMA_KEY, REGISTRATION_SEEKER_SCHEMA_KEY]
+
 function groupByKey(versions: SchemaVersion[]): Record<string, SchemaVersion[]> {
   return versions.reduce<Record<string, SchemaVersion[]>>((acc, v) => {
-    // PAI has its own dedicated page (/pai) — showing it here too would be
-    // a confusing second place to manage the same form.
-    if (v.schema_key === PAI_PLAN_SCHEMA_KEY) return acc
+    if (DEDICATED_PAGE_KEYS.includes(v.schema_key)) return acc
     if (!acc[v.schema_key]) acc[v.schema_key] = []
     acc[v.schema_key].push(v)
     return acc
@@ -113,8 +117,22 @@ export default function SchemasPage() {
   )
   const [previewVersion, setPreviewVersion] = useState<SchemaVersion | null>(null)
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
+  const [duplicateSource, setDuplicateSource] = useState<{
+    schemaKey: string
+    version: number
+  } | null>(null)
 
   const grouped = groupByKey(data ?? [])
+  const knownSchemaKeys = [
+    ...new Set([
+      ...(data ?? []).map((v) => v.schema_key),
+      ...(experienceTypes ?? []).flatMap((et) =>
+        [et.schema_key, et.follow_up_schema_key].filter((key): key is string => !!key)
+      ),
+      PAI_PLAN_SCHEMA_KEY,
+      REGISTRATION_SEEKER_SCHEMA_KEY,
+    ]),
+  ].sort()
   const keys = Object.keys(grouped).sort((a, b) => {
     const metaA = resolveGroupMeta(a, experienceTypes)
     const metaB = resolveGroupMeta(b, experienceTypes)
@@ -152,6 +170,7 @@ export default function SchemasPage() {
           </p>
           <Button
             size="sm"
+            className="pt-0.5"
             onClick={() => {
               setNewDialogKey("")
               setNewDialogOpen(true)
@@ -190,7 +209,7 @@ export default function SchemasPage() {
                     : "Sistema"
 
               return (
-                <Collapsible key={key} defaultOpen>
+                <Collapsible key={key} >
                   <div className="rounded-lg border">
                     <div className="flex items-center justify-between pr-2">
                       <CollapsibleTrigger className="flex flex-1 items-center gap-3 p-4 text-left hover:bg-muted/50">
@@ -218,7 +237,7 @@ export default function SchemasPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 text-xs"
+                        className="h-7 text-xs "
                         onClick={() => openNewForKey(key)}
                       >
                         <Plus className="mr-1 h-3 w-3" />
@@ -261,6 +280,20 @@ export default function SchemasPage() {
                               >
                                 <Eye className="mr-1 h-3 w-3" />
                                 Visualizar
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={() =>
+                                  setDuplicateSource({
+                                    schemaKey: v.schema_key,
+                                    version: v.schema_version,
+                                  })
+                                }
+                              >
+                                <Copy className="mr-1 h-3 w-3" />
+                                Duplicar
                               </Button>
                               {!v.is_active && !v.published_at && (
                                 <Button
@@ -340,6 +373,13 @@ export default function SchemasPage() {
           isPublished={previewVersion.is_active}
         />
       )}
+
+      <DuplicateVersionDialog
+        open={!!duplicateSource}
+        onOpenChange={(open) => !open && setDuplicateSource(null)}
+        source={duplicateSource}
+        existingKeys={knownSchemaKeys}
+      />
 
       <AlertDialog
         open={!!confirmAction}

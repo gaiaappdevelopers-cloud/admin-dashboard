@@ -12,6 +12,7 @@ import {
   Stethoscope,
   Building2,
   HeartHandshake,
+  UserPlus,
 } from "lucide-react"
 
 import {
@@ -34,6 +35,7 @@ const configNav = [
   { title: "Tipos de Experiência", href: "/experience-types", icon: Sparkles },
   { title: "Formulários", href: "/schemas", icon: Layers },
   { title: "PAI", href: "/pai", icon: HeartHandshake },
+  { title: "Cadastros", href: "/registrations", icon: UserPlus },
 ]
 
 const platformNav = [

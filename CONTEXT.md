@@ -18,6 +18,14 @@ A user with `ProfileType.ADMIN` — the only role that can access this panel. A 
 
 > Assumed non-technical: the panel's UI must not require the admin to hand-author raw JSON (or any other code-like syntax) to accomplish common tasks such as editing a form. Where the underlying data is structured/nested (e.g. Schema sections and fields), the UI must provide dedicated visual controls rather than a code editor.
 
+## Seeker
+
+The default end-user profile type (`ProfileType.SEEKER`) — the person using the mobile app to log Experiences, maintain a PAI, and browse Establishments. Referred to as "Buscador" in Portuguese-facing product copy.
+
+> Avoid: "procurador" (an unrelated Portuguese legal term meaning attorney-in-fact/proxy — do not use for this role), "usuário"/"user" (too generic in a panel that also has Professional, Establishment, and Admin profile types).
+
+Signs up via a dynamic, Schema-backed registration form (see [[Schema]]), fixed at `schema_key` `registration_seeker` — managed by the admin under the Cadastros / Buscador area. This is distinct from Professional and Establishment registration, which collect fixed structured fields (see [[Professional]], [[Establishment]]) rather than being backed by a Schema.
+
 ## Experience
 
 A single event logged by a user in the GAIA diary app. The user selects an ExperienceType, fills in a form defined by that type's active Schema, and the result is persisted as a diary entry.
@@ -26,7 +34,11 @@ A single event logged by a user in the GAIA diary app. The user selects an Exper
 
 ## Schema
 
-A versioned form definition that describes the fields a user fills in when logging an Experience of a given ExperienceType. A Schema consists of one or more Sections. It is identified by a stable `schema_key` — a free-form string, snake_case by convention in the current catalog (e.g. `experience_entry_dream`).
+A versioned form definition. A Schema consists of one or more Sections. It is identified by a stable `schema_key` — a free-form string, snake_case by convention in the current catalog (e.g. `experience_entry_dream`).
+
+> Schema is a generic, reusable mechanism — it backs three distinct kinds of form in this system, each with its own dedicated admin UI: Experience forms (one per ExperienceType, see below), the [[PAI]] form (`schema_key` `pai_plan`), and the [[Seeker]] registration/anamnesis form (`schema_key` `registration_seeker`). The rest of this entry describes the Experience-form usage; the same versioning/publishing rules apply to all three.
+
+When describing an Experience form specifically: it describes the fields a user fills in when logging an Experience of a given ExperienceType.
 
 Only one version of a Schema is **published** (active) at a time. Draft versions can be edited and deleted; a published version cannot be deleted.
 

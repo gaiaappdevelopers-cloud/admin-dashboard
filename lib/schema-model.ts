@@ -22,6 +22,9 @@ export const OPTIONS_FIELD_TYPES: DynamicFormFieldType[] = ["selection", "dropdo
 /** Chave fixa do formulário de PAI (Plano de Ação de Integração) — só existe um. */
 export const PAI_PLAN_SCHEMA_KEY = "pai_plan"
 
+/** Chave fixa do formulário de cadastro/anamnese do Buscador (ProfileType.SEEKER). */
+export const REGISTRATION_SEEKER_SCHEMA_KEY = "registration_seeker"
+
 /**
  * Chaves de ícone confirmadas pelo dev mobile para section_info_box.icon —
  * o Flutter também aceita light_bulb/idea como aliases legados de lightbulb,
