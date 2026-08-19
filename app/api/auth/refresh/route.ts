@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000"
-const ACCESS_TOKEN_MAX_AGE = 60 * 15
+// Fallbacks only — see app/api/auth/login/route.ts.
+const ACCESS_TOKEN_MAX_AGE_FALLBACK = 60 * 15
+const REFRESH_TOKEN_MAX_AGE_FALLBACK = 60 * 60 * 24 * 7
 
 export async function POST(req: NextRequest) {
   const refreshToken = req.cookies.get("refresh_token")?.value
@@ -12,9 +14,12 @@ export async function POST(req: NextRequest) {
 
   let backendRes: Response
   try {
+    // The backend reads refresh_token from the request body (RefreshTokenDto),
+    // not from cookies — it has no cookie-parsing of its own.
     backendRes = await fetch(`${BACKEND_URL}/v1/auth/refresh`, {
       method: "POST",
-      headers: { Cookie: `refresh_token=${refreshToken}` },
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
     })
   } catch {
     return NextResponse.json(
@@ -40,14 +45,34 @@ export async function POST(req: NextRequest) {
     return res
   }
 
-  const { access_token } = (json as { data: { access_token: string } }).data
+  const { access_token, refresh_token, expires_in, refresh_expires_in } = (
+    json as {
+      data: {
+        access_token: string
+        refresh_token: string
+        expires_in?: number
+        refresh_expires_in?: number
+      }
+    }
+  ).data
 
   const res = NextResponse.json({ ok: true })
+
   res.cookies.set("access_token", access_token, {
     httpOnly: false,
     sameSite: "strict",
     path: "/",
-    maxAge: ACCESS_TOKEN_MAX_AGE,
+    maxAge: expires_in ?? ACCESS_TOKEN_MAX_AGE_FALLBACK,
+  })
+
+  // The backend rotates the refresh token on every refresh — the old cookie
+  // value is invalidated server-side the moment this response is issued, so
+  // it must be persisted here or the *next* refresh will always fail.
+  res.cookies.set("refresh_token", refresh_token, {
+    httpOnly: true,
+    sameSite: "strict",
+    path: "/",
+    maxAge: refresh_expires_in ?? REFRESH_TOKEN_MAX_AGE_FALLBACK,
   })
 
   return res

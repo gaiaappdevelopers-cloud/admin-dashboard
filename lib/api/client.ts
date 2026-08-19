@@ -1,3 +1,5 @@
+import { requestReauth } from "@/store/session.store"
+
 const getBaseUrl = () => process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000"
 
 function getAccessToken(): string | null {
@@ -6,9 +8,22 @@ function getAccessToken(): string | null {
   return match ? decodeURIComponent(match[1]) : null
 }
 
+// Shared by every concurrent caller so a burst of 401s (e.g. several queries
+// refetching at once after the tab regains focus) triggers a single refresh
+// call instead of racing the backend's single-refresh-token-per-account
+// rotation (see gaia-admin/docs/adr/0001-session-recovery-in-place-reauth.md).
+let refreshInFlight: Promise<boolean> | null = null
+
 async function refreshAccessToken(): Promise<boolean> {
-  const res = await fetch("/api/auth/refresh", { method: "POST" })
-  return res.ok
+  if (!refreshInFlight) {
+    refreshInFlight = fetch("/api/auth/refresh", { method: "POST" })
+      .then((res) => res.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshInFlight = null
+      })
+  }
+  return refreshInFlight
 }
 
 export class ApiError extends Error {
@@ -43,7 +58,14 @@ export async function apiFetch<T>(
     if (refreshed) {
       return apiFetch<T>(path, init, false)
     }
-    window.location.href = "/login"
+
+    // Refresh failed — instead of a hard redirect (which would tear down
+    // whatever the admin has unsaved on the current page), surface an
+    // in-place re-auth modal and retry once they log back in.
+    const reauthed = await requestReauth()
+    if (reauthed) {
+      return apiFetch<T>(path, init, false)
+    }
     throw new ApiError("UNAUTHORIZED", "Session expired")
   }
 

@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from "next/server"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000"
 
-const ACCESS_TOKEN_MAX_AGE = 60 * 15       // 15 minutes
-const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
+// Fallbacks only — the real lifetimes come from the backend's response
+// (`expires_in` / `refresh_expires_in`) so cookie lifetime always tracks
+// JWT_ACCESS_EXPIRES_IN_SECONDS / JWT_REFRESH_EXPIRES_IN_SECONDS server-side.
+const ACCESS_TOKEN_MAX_AGE_FALLBACK = 60 * 15       // 15 minutes
+const REFRESH_TOKEN_MAX_AGE_FALLBACK = 60 * 60 * 24 * 7 // 7 days
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -36,7 +39,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(json as Record<string, unknown>, { status: backendRes.status })
   }
 
-  const { access_token, refresh_token } = (json as { data: { access_token: string; refresh_token: string } }).data
+  const { access_token, refresh_token, expires_in, refresh_expires_in } = (
+    json as {
+      data: {
+        access_token: string
+        refresh_token: string
+        expires_in?: number
+        refresh_expires_in?: number
+      }
+    }
+  ).data
 
   const res = NextResponse.json({ ok: true })
 
@@ -44,14 +56,14 @@ export async function POST(req: NextRequest) {
     httpOnly: false,
     sameSite: "strict",
     path: "/",
-    maxAge: ACCESS_TOKEN_MAX_AGE,
+    maxAge: expires_in ?? ACCESS_TOKEN_MAX_AGE_FALLBACK,
   })
 
   res.cookies.set("refresh_token", refresh_token, {
     httpOnly: true,
     sameSite: "strict",
     path: "/",
-    maxAge: REFRESH_TOKEN_MAX_AGE,
+    maxAge: refresh_expires_in ?? REFRESH_TOKEN_MAX_AGE_FALLBACK,
   })
 
   return res
